@@ -20,15 +20,17 @@ from logging.handlers import RotatingFileHandler
 @click.command()
 @click.option('-b', '--broker-url', default='redis://localhost:6379')  # by default use config module value
 @click.option('-t', '--worker-tasks', default='celeros.tasks')  # by default use config module value
-@click.option('-r', '--ros_args', default='')
-def work(broker_url='', worker_tasks='', ros_args=''):
+@click.option('ros_args', '-r', '--ros-arg', multiple=True, default='')
+def work(broker_url='', worker_tasks='', ros_args=[]):
+
+    logging.getLogger().setLevel(logging.DEBUG)
 
     logging.info('boker %r tasks %r', broker_url, worker_tasks)
     logging.info('ros_args %r', ros_args)
 
     #TODO : when called from python and no master found, do as roslaunch : create a master so it still can work from python
     #Launch the server
-    celeros_worker.launch(broker_url, worker_tasks, ros_args.split())
+    celeros_worker.launch(broker_url, worker_tasks, list(ros_args))
 
 if __name__ == '__main__':
     work()

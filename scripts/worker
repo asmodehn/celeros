@@ -21,8 +21,8 @@ case $key in
     shift 2
     ;;
     __*)
-    ROSARGS="${ROSARGS:+$ROSARGS }$key"
-    #ros option
+    ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
+    #ros option ( multiple )
     shift 1
     ;;
     *)
@@ -35,9 +35,8 @@ done
 
 BROKER=${BROKER:+"-b $BROKER"}
 TASKS=${TASKS:+"-t $TASKS"}
-ROSARGS=${ROSARGS:+"--ros_args=$ROSARGS"}
 
 set -x
 
-python -tt -m celeros ${BROKER} ${TASKS} "${ROSARGS}"
+python -tt -m celeros ${BROKER} ${TASKS} ${ROSARGS}
 

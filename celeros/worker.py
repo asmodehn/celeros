@@ -38,8 +38,6 @@ class Worker(object):
 
     def launch(self, broker_url='', tasks='', ros_args=''):
 
-        print broker_url, tasks
-
         # changing broker ( needed even without worker running here )
         if broker_url != '':
             self.app.conf.update(
