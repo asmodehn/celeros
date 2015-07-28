@@ -6,7 +6,7 @@
   <arg name="config" default="celeryconfig.py"/>
 
   <!-- flower server -->
-  <node pkg="rostful" name="flower" type="flower" args="--conf $(arg conf) --config $(arg config) --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks)">
+  <node pkg="celeros" name="flower" type="flower" args="--conf $(arg conf) --config $(arg config) --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks)">
   </node>
 
 </launch>
