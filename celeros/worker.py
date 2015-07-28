@@ -16,7 +16,7 @@ except Exception, e:
 from celery.bin import Option
 
 from .rosargs import RosArgs
-from .app import app
+from .app import celeros_app
 
 
 class Worker(object):
@@ -25,7 +25,7 @@ class Worker(object):
 
         # Setup Celery ( NOT the FLask Celery helper )
         # TODO : check SHARK http://sharq.io => how about double backend ? celery+flower or shark
-        self.app = app
+        self.app = celeros_app
 
         # self.celery.user_options['worker'].add(
         #    Option("--ros_args", action="store", dest="ros_args", default=None, help="Activate support of rapps")
@@ -75,6 +75,10 @@ class Worker(object):
             )
             celeros_worker.worker_thread.start()
             # TODO : fix signal handling when running celery in another thread...
+
+            #we wait here to keep rostful node alive
+            celeros_worker.worker_thread.join()
+
 
 
 # Creating THE only instance of Worker.

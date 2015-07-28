@@ -2,9 +2,9 @@
 from __future__ import absolute_import
 
 from .worker import celeros_worker
-from . import app as celeros_tasks
+from .app import celeros_app
 
 __all__ = [
     'celeros_worker',
-    'celeros_tasks'
+    'celeros_app'
 ]
