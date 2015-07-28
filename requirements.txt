@@ -1,0 +1,10 @@
+--index-url https://pypi.python.org/simple/
+--extra-index-url https://testpypi.python.org/simple/
+
+celery==3.1.18
+flower==0.8.2
+futures==3.0.2
+
+-e git://github.com/asmodehn/rostful-node.git@rosless#egg=Rostful-node
+
+-e .
