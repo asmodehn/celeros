@@ -12,6 +12,14 @@ while [[ $# > 0 ]]
 do
 key="$1"
 case $key in
+    --port)
+    PORT="$2"
+    shift 2
+    ;;
+    --address)
+    ADDRESS="$2"
+    shift 2
+    ;;
     --conf)
     CONF="$2"
     shift 2
@@ -41,6 +49,8 @@ case $key in
 esac
 done
 
+PORT=${PORT:+"--port=$PORT"}
+ADDRESS=${ADDRESS:+"--address=$ADDRESS"}
 CONF=${CONF:+"--conf=$CONF"}
 CONFIG=${CONFIG:+"--config=$CONFIG"}
 BROKER=${BROKER:+"-b $BROKER"}
@@ -50,5 +60,5 @@ ROSARGS=${ROSARGS:+"--ros_args=$ROSARGS"}
 set -x
 
 # need to call python to use the flask-ext-catkin version accessible after  "source <devel|install>/setup.bash"
-python -tt -m flower ${CONF} ${CONFIG} ${BROKER} ${TASKS} "${ROSARGS}"
+python -tt -m flower ${PORT} ${ADDRESS} ${CONF} ${CONFIG} ${BROKER} ${TASKS} "${ROSARGS}"
 
