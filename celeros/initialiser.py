@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 
-from . import config
+from celeros import config
 from celery import Celery
 from celery.bin import Option
-from . rosstart import BootRostfulNode
+from celeros.rosstart import BootRostfulNode
 import sys
 
 print("sys argv is ", sys.argv)

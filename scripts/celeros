@@ -1,33 +1,29 @@
-#!/usr/bin/python
-# All ways to run rostful and all Manager commands
-# should be defined here for consistency
+#!/usr/bin/env python
+
 from __future__ import absolute_import
-import os
-import sys
+
+
+
+from celeros import config
+from celeros.rosstart import BootRostfulNode
+from celery import Celery
+from celery.bin import Option
+
 import click
-import threading
-
-#importing current package if needed ( solving relative package import from __main__ problem )
-if __package__ is None:
-    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    from celeros import celeros_worker
-    from celeros import celeros_app
-else:
-    from . import celeros_worker
-    from . import celeros_app
-
 import logging
-from logging.handlers import RotatingFileHandler
-
+import sys
+import threading
 
 @click.command()
 @click.option('-b', '--broker-url', default='redis://localhost:6379')  # by default use config module value
 @click.option('-t', '--worker-tasks', default='celeros.tasks')  # by default use config module value
 @click.option('ros_args', '-r', '--ros-arg', multiple=True, default='')
-def work(broker_url='', worker_tasks='', ros_args=[]):
-
-    logging.getLogger().setLevel(logging.DEBUG)
-
+def main(broker_url='', worker_tasks='', ros_args=[]):
+    celeros_app = Celery()
+    celeros_app.steps['worker'].add(BootRostfulNode)
+    celeros_app.user_options['worker'].add(Option('-R', '--ros-args', default=None, help='Arguments for ros initialisation'))
+    celeros_app.config_from_object(config.Development)
+    
     logging.info('broker %s tasks %s', broker_url, worker_tasks)
     logging.info('ros_args %s', ros_args)
     str_rosargs = ','.join([str(arg) for arg in ros_args]) # remove unicode designation in strings
@@ -59,12 +55,8 @@ def work(broker_url='', worker_tasks='', ros_args=[]):
 
     worker_thread.start()
     worker_thread.join()
-    
-    #TODO : when called from python and no master found, do as roslaunch : create a master so it still can work from python
-    #Launch the server
-    #celeros_worker.launch(broker_url, worker_tasks, ros_args)
 
 if __name__ == '__main__':
     # change the ros arguments into a format readable by click
     sys.argv = map(lambda x : '--ros-arg=' + x if x[0:2] == '__' else x, sys.argv)
-    work()
+    main()

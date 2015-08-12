@@ -9,7 +9,9 @@
   <arg name="rapps_namespaces" default="[]" /> <!-- TODO : default should be to watch all -> wildcard support needed -->
 
   <!-- celery worker -->
-  <node pkg="celeros" name="celeros" type="worker" args=" --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks)">
+  <node pkg="celeros" name="celeros" type="celeros" args="__broker-url:=$(arg broker_url) __worker-tasks:=$(arg worker_tasks)">
+  <!-- <node pkg="celeros" name="celeros" type="__main__.py" args="__broker-url:=$(arg broker_url) __worker-tasks:=$(arg worker_tasks)"> -->
+  <!-- <node pkg="celeros" name="celeros" type="worker" args="__broker-url:=$(arg broker_url) __worker-tasks:=$(arg worker_tasks)"> -->
     <param name="topics" value="$(arg topics)" type="str" />
     <param name="services" value="$(arg services)" type="str" />
     <param name="actions" value="$(arg actions)" type="str" />
