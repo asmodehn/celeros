@@ -20,6 +20,10 @@ case $key in
     TASKS="$2"
     shift 2
     ;;
+    -c|--worker-config)
+    CONFIG="$2"
+    shift 2
+    ;;
     __*)
     ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
     #ros option ( multiple )
@@ -35,8 +39,8 @@ done
 
 BROKER=${BROKER:+"-b $BROKER"}
 TASKS=${TASKS:+"-t $TASKS"}
-
+CONFIG=${CONFIG:+"-c $CONFIG"}
 set -x
 
-python -tt -m celeros ${BROKER} ${TASKS} ${ROSARGS}
+python -tt -m celeros ${BROKER} ${TASKS} ${CONFIG} ${ROSARGS}
 

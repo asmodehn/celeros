@@ -36,17 +36,22 @@ class Worker(object):
         self.ros_node = ros_node
         self.app.ros_node_client = ros_node_client
 
-    def launch(self, broker_url='', tasks='', ros_args=''):
+    def launch(self, broker_url='', tasks='', config='', ros_args=''):
+        if config:
+            # add the directory of the configuration module to the python path
+            sys.path.append(os.path.dirname(config))
+            # use the filename of the configuration module to load the config
+            self.app.config_from_object(os.path.splitext(config)[0].split('/')[-1])
 
         # changing broker ( needed even without worker running here )
-        if broker_url != '':
+        if broker_url:
             self.app.conf.update(
                 CELERY_BROKER_URL=broker_url,
                 CELERY_RESULT_BACKEND=broker_url,
             )
 
         # importing extra tasks ( needed even without worker running here )
-        if tasks != '':
+        if tasks:
             self.app.conf.update(CELERY_IMPORTS=tasks)
 
         # One RostfulNode is needed for Flask.
