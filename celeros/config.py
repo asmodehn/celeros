@@ -13,9 +13,6 @@ class Default(object):
     CELERY_ALWAYS_EAGER = False  # FOR NOW : Always put into the queue
     # TODO : ?maybe? use True to match rapp/task behavior and start locally if possible, otherwise push into queue...
 
-    CELERY_IMPORTS = 'gopher_rocon_bootstrap.celery_tasks'
-
-
 class Development(Default):
     DEBUG = True
 
