@@ -38,9 +38,9 @@ esac
 done
 
 BROKER=${BROKER:+"-b $BROKER"}
-TASKS=${TASKS:+"-t $TASKS"}
-CONFIG=${CONFIG:+"-c $CONFIG"}
+TASKS=${TASKS:+"-A $TASKS"}
+CONFIG=${CONFIG:+"--config=$CONFIG"}
 set -x
 
-python -tt -m celeros ${BROKER} ${TASKS} ${CONFIG} ${ROSARGS}
+python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${ROSARGS} -c 1 -l DEBUG
 

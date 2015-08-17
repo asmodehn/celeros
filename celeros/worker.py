@@ -73,7 +73,7 @@ class Worker(object):
                     '--broker=' + broker_url,
                     '--concurrency=1',
                     '--autoreload',  # not working ??
-                    # '--ros_args=' + ros_args
+                    '--ros-args=' + ','.join(ros_args)
                 ]}
             )
             celeros_worker.worker_thread.start()
