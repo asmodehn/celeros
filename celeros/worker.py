@@ -82,7 +82,5 @@ class Worker(object):
             #we wait here to keep rostful node alive
             celeros_worker.worker_thread.join()
 
-
-
 # Creating THE only instance of Worker.
 celeros_worker = Worker()
