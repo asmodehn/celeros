@@ -2,7 +2,7 @@
   <!-- ******************************* Arguments ******************************* -->
   <arg name="broker_url" default="redis://localhost:6379"/>
   <arg name="worker_tasks" default="celeros.tasks"/>
-  <arg name="worker_config" default="$(find gopher_rocon_bootstrap)/src/gopher_rocon_config/celeryconfig.py"/>
+  <arg name="worker_config" default="celeros.config"/>
   <arg name="topics" default="['turtle1/pose']" />
   <arg name="services" default="[]" />
   <arg name="actions" default="[]" />
