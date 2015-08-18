@@ -19,6 +19,7 @@ from .rosargs import RosArgs
 from .app import celeros_app
 
 
+
 class Worker(object):
     # TODO : pass config file from command line here
     def __init__(self):
@@ -36,7 +37,7 @@ class Worker(object):
         self.ros_node = ros_node
         self.app.ros_node_client = ros_node_client
 
-    def launch(self, broker_url='', tasks='', config='', ros_args=''):
+    def launch(self, broker_url='', tasks='', config='', hostname='', ros_args=''):
         if config:
             # add the directory of the configuration module to the python path
             sys.path.append(os.path.dirname(config))
@@ -63,16 +64,17 @@ class Worker(object):
             import threading
             # TODO : investigate a simpler way to start the (unique) worker asynchronously ?
             celeros_worker.worker_thread = threading.Thread(
-                target=celeros_worker.app.worker_main,
+            target=celeros_worker.app.worker_main,
                 kwargs={'argv': [
                     'celery',
                     # '--app=celery',
-                    # '--config=celery_cfg.Development',
+                    # '--config=',
                     '--events',
+                    '--hostname=' + hostname,
                     '--loglevel=INFO',
                     '--broker=' + broker_url,
                     '--concurrency=1',
-                    '--autoreload',  # not working ??
+                    '--autoreload' # not working ??
                     # '--ros_args=' + ros_args
                 ]}
             )
