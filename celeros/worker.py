@@ -43,6 +43,8 @@ class Worker(object):
             sys.path.append(os.path.dirname(config))
             # use the filename of the configuration module to load the config
             self.app.config_from_object(os.path.splitext(config)[0].split('/')[-1])
+        # This supports only file paths.
+        #TODO : support python module as well ( flask does it somehow )
 
         # changing broker ( needed even without worker running here )
         if broker_url:
@@ -57,7 +59,8 @@ class Worker(object):
 
         # One RostfulNode is needed for Flask.
         # TODO : check if still true with multiple web process
-        with rostful_node.RostfulCtx(name='celeros', argv=ros_args) as node_ctx:
+        print ros_args
+        with rostful_node.RostfulCtx(name='celeros', argv=ros_args, ) as node_ctx:
             self._setup(node_ctx.node, node_ctx.client)
 
             # Celery needs rostfulNode running, and uses it via python via an interprocess Pipe interface
