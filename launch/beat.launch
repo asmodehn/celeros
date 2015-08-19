@@ -1,11 +1,11 @@
 <launch>
   <!-- ******************************* Arguments ******************************* -->
   <arg name="broker_url" default="redis://localhost:6379"/>
-  <arg name="worker_tasks" default="celeros.tasks"/>
+  <arg name="worker_tasks" default="celeros.rostasks"/>
   <arg name="worker_config" default="celeros.config"/>
 
   <!-- celery beat worker -->
-  <node pkg="celeros" name="celeros" type="worker" args="beat --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks) --worker-config $(arg worker_config)">
+  <node pkg="celeros" name="celeros" type="beat" args=" --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks) --worker-config $(arg worker_config) -S celeros.celerybeatredis.schedulers.RedisScheduler">
   </node>
 
 </launch>

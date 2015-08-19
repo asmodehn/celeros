@@ -1,7 +1,7 @@
 <launch>
   <!-- ******************************* Arguments ******************************* -->
   <arg name="broker_url" default="redis://localhost:6379"/>
-  <arg name="worker_tasks" default="celeros.tasks"/>
+  <arg name="worker_tasks" default="celeros.rostasks"/>
   <arg name="worker_config" default="celeros.config"/>
   <arg name="topics" default="['turtle1/pose']" />
   <arg name="services" default="[]" />

@@ -1,0 +1,52 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+#forcing the current working directory to our parent
+cd "$DIR"/..
+
+echo $*
+
+#necessary to handle arguments ( since ros doesnt pass it s argument in a standard/readline way )
+while [[ $# > 0 ]]
+do
+key="$1"
+case $key in
+    -b|--broker-url)
+    BROKER="$2"
+    shift 2
+    ;;
+    -t|--worker-tasks)
+    TASKS="$2"
+    shift 2
+    ;;
+    -c|--worker-config)
+    CONFIG="$2"
+    shift 2
+    ;;
+    -S|--scheduler)
+    SCHEDULER_CLS="$2"
+    shift 2
+    ;;
+    __*)
+    ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
+    #ros option ( multiple )
+    shift 1
+    ;;
+    *)
+    # unknown option
+    echo "Unknown Option"
+    shift 1
+    ;;
+esac
+done
+
+BROKER=${BROKER:+"-b $BROKER"}
+TASKS=${TASKS:+"-A $TASKS"}
+CONFIG=${CONFIG:+"--config=$CONFIG"}
+SCHEDULER_CLS=${SCHEDULER_CLS:+"-S $SCHEDULER_CLS"}
+set -x
+
+# we ignore rosargs
+python -tt -m celery beat ${BROKER} ${TASKS} ${CONFIG} ${SCHEDULER_CLS}
+
