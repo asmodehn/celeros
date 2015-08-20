@@ -19,6 +19,7 @@ from .rosargs import RosArgs
 from .app import celeros_app
 
 
+
 class Worker(object):
     # TODO : pass config file from command line here
     def __init__(self):
@@ -36,12 +37,14 @@ class Worker(object):
         self.ros_node = ros_node
         self.app.ros_node_client = ros_node_client
 
-    def launch(self, broker_url='', tasks='', config='', ros_args=''):
+    def launch(self, broker_url='', tasks='', config='', hostname='', ros_args=''):
         if config:
             # add the directory of the configuration module to the python path
             sys.path.append(os.path.dirname(config))
             # use the filename of the configuration module to load the config
             self.app.config_from_object(os.path.splitext(config)[0].split('/')[-1])
+        # This supports only file paths.
+        #TODO : support python module as well ( flask does it somehow )
 
         # changing broker ( needed even without worker running here )
         if broker_url:
@@ -56,23 +59,25 @@ class Worker(object):
 
         # One RostfulNode is needed for Flask.
         # TODO : check if still true with multiple web process
-        with rostful_node.RostfulCtx(name='celeros', argv=ros_args) as node_ctx:
+        print ros_args
+        with rostful_node.RostfulCtx(name='celeros', argv=ros_args, ) as node_ctx:
             self._setup(node_ctx.node, node_ctx.client)
 
             # Celery needs rostfulNode running, and uses it via python via an interprocess Pipe interface
             import threading
             # TODO : investigate a simpler way to start the (unique) worker asynchronously ?
             celeros_worker.worker_thread = threading.Thread(
-                target=celeros_worker.app.worker_main,
+            target=celeros_worker.app.worker_main,
                 kwargs={'argv': [
                     'celery',
                     # '--app=celery',
-                    # '--config=celery_cfg.Development',
+                    # '--config=',
                     '--events',
+                    '--hostname=' + hostname,
                     '--loglevel=INFO',
                     '--broker=' + broker_url,
                     '--concurrency=1',
-                    '--autoreload',  # not working ??
+                    '--autoreload' # not working ??
                     # '--ros_args=' + ros_args
                 ]}
             )
