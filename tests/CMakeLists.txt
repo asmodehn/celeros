@@ -4,4 +4,4 @@
 
 # Unit tests using nose, but needing a running ROS core.
 find_package(catkin REQUIRED COMPONENTS rostest)
-#TODO add_rostest(celeros.test)
+add_rostest(celeros/testceleros.test)

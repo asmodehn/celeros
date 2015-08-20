@@ -22,6 +22,23 @@ import rostful_node
 from importlib import import_module
 
 
+class ROSTask(Task):
+    """ROS interface task class."""
+
+    abstract = True
+
+    # the cached requests.session object
+    ros_node_client = None
+
+    def __init__(self, *args, **kwargs):
+        print args
+        print kwargs
+        # since this class is instantiated once, use this method
+        # to initialize and cache resources.
+        pass
+
+
+
 # TODO : we should probably move these to rostful-node as shared tasks...
 @celeros_app.task(bind=True)
 def topic_inject(self, topic_name, **kwargs):
@@ -34,8 +51,8 @@ def topic_extract(self, topic_name):
     return res
 
 
-@celeros_app.task(bind=True)
-def service(self, service_name, **kwargs):
+@celeros_app.task(bind=True, base=ROSTask)
+def service_call(self, service_name, **kwargs):
     res = self.app.ros_node_client.call(service_name, **kwargs)
     return res
 

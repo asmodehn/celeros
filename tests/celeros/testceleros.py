@@ -2,140 +2,111 @@
 import unittest
 import sys
 import os
+import time
 import rostest
 import rospy
 from std_msgs.msg import String, Empty
+from std_srvs.srv import Trigger, TriggerResponse
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+from celeros import celeros_app
+from celeros import tasks
 
 import roslaunch
 
-from celeros.ros_interface import RosInterface
+class Timeout(object):
+    """
+    Small useful timeout class
+    """
+    def __init__(self, seconds):
+        self.seconds = seconds
+
+    def __enter__(self):
+        self.die_after = time.time() + self.seconds
+        return self
+
+    def __exit__(self, type, value, traceback):
+        pass
+
+    @property
+    def timed_out(self):
+        return time.time() > self.die_after
+
 
 class TestCeleros(unittest.TestCase):
+
+    def _inject(self, data):
+        print data
+        self._injected = True
+        pass
+
+    def _call(self, req):
+        print req
+        self._called = True
+        return TriggerResponse(success=True, message='test node called !')
+
     def setUp(self):
-        rospy.init_node('ros_interface_test')
-        self.strpub = rospy.Publisher('/test/string', String, queue_size=1)
-        self.emppub = rospy.Publisher('/test/empty', Empty, queue_size=1)
-        
-        self.interface = RosInterface(run_watcher=False)
+        # Test code is a node
+        # => we can detect whats happening to this node, while also launching tasks.
+        rospy.init_node('celeros_test')
+
+        config = rospy.get_param('~config')
+        if config:
+            rospy.logwarn("GOT TEST CONFIG PARAM {0}".format(config))
+            celeros_app.config_from_object(config)
+
+        # getting the parameters to configure celery here in the same way as the worker :
+        broker_url = rospy.get_param('~broker')
+        if broker_url:
+            rospy.logwarn("GOT TEST BROKER PARAM {0}".format(broker_url))
+            celeros_app.conf.update(
+                BROKER_URL=broker_url,
+                CELERY_RESULT_BACKEND=broker_url,
+            )
 
     def tearDown(self):
-        self.interface = None
+        # the node will shutdown with the test process.
+        pass
 
-    ##
-    # Test basic topic adding functionality for a topic which already exists in
-    # the ros environment.
-    def test_topic_add_basic_existing(self):
-        topicname = '/test/string'
-        self.interface.add_topic(topicname)
-        # every added topic should be in the list of args
-        self.assertTrue(topicname in self.interface.topics_args)
-        # added a single instance of the topic, so the number of the topics
-        # existing should be incremented by one (because we consider the fact
-        # that when the entire system is running, two additional topics will be
-        # created by the subscriber proxy)
-        self.assertEqual(-1, self.interface.topics_args[topicname])
-        # the topic already exists in the environment, so it should not be in
-        # the waiting list
-        self.assertTrue(topicname not in self.interface.topics_waiting)
-        # make sure the topic backend has been created
-        self.assertTrue(topicname in self.interface.topics)
 
-    ##
-    # Test basic topic adding functionality for a topic which does not yet exist
-    # in the ros environment
-    def test_topic_add_basic_nonexistent(self):
-        topicname = '/test/nonexistent'
-        self.interface.add_topic(topicname)
-        # every added topic should be in the list of args
-        self.assertTrue(topicname in self.interface.topics_args)
-        # we added the topic, but it didn't exist yet, so the count should be -2
-        self.assertEqual(-2, self.interface.topics_args[topicname])
-        # topic does not exist in the environment, so it should be in the waiting list
-        self.assertTrue(topicname in self.interface.topics_waiting)
-        # the backend should not have been created
-        self.assertTrue(topicname not in self.interface.topics)
+    def test_service_call(self):
+        # service to be called
+        self._called = False
+        self._srv = rospy.Service('~called', Trigger, self._called)
 
-        # create the publisher and then try adding the topic again, simulating
-        # it coming online.
-        nonexistent_pub = rospy.Publisher(topicname, Empty, queue_size=1)
-        self.interface.add_topic(topicname)
+        # constant use just to prevent spinning too fast
+        overspin_sleep_val = 0.02
 
-        self.assertTrue(topicname in self.interface.topics_args)
-        self.assertEqual(-1, self.interface.topics_args[topicname])
-        self.assertTrue(topicname in self.interface.topics)
-        self.assertTrue(topicname not in self.interface.topics_waiting)
+        def prevent_overspin_sleep():
+            time.sleep(overspin_sleep_val)
 
-    @unittest.expectedFailure
-    def test_topic_del(self):
-        print("topic del")
+        # we wait a bit for the service to be discovered
+        time.sleep(2)
 
-    @unittest.expectedFailure
-    def test_service_add(self):
-        print("service del")
+        # we send the task to the worker
+        result = tasks.service_call.apply_async(['/celeros_test/called', '{}'])
 
-    @unittest.expectedFailure
-    def test_service_del(self):
-        print("service del")
+        # we wait until we get called
+        with Timeout(5) as t:
+            while not t.timed_out and not self._called:
+                prevent_overspin_sleep()
 
-    ##
-    # Ensure that no crash occurs when the expose topics function is called by a
-    # reconfigure request which requires the deletion of some topics from the
-    # topic arguments that already exist.
-    def test_expose_topics_deletion_crash(self):
-        self.interface.add_topic('/test/string')
-        self.interface.add_topic('/test/empty')
-        
-        self.interface.expose_topics(['/test/string'])
-        # ensure all the lists/dicts no longer contain the deleted topic
-        self.assertTrue('/test/empty' not in self.interface.topics_args)
-        self.assertTrue('/test/empty' not in self.interface.topics)
-        self.assertTrue('/test/empty' not in self.interface.topics_waiting)
-        # ensure all relevant lists have the remaining one
-        self.assertTrue('/test/string' in self.interface.topics_args)
-        self.assertTrue('/test/string' in self.interface.topics)
+        assert not t.timed_out and self._called
 
-    ##
-    # Ensure that no crash occurs when the expose services function is called by
-    # a reconfigure request which requires the deletion of some services from the
-    # service arguments that already exist.
-    def test_expose_services_deletion_crash(self):
-        self.interface.add_service('/test/empsrv')
-        self.interface.add_service('/test/trgsrv')
-        self.interface.expose_services(['/test/empsrv'])
-        # ensure all the lists/dicts no longer contain the deleted service
-        self.assertTrue('/test/trgsrv' not in self.interface.services_args)
-        self.assertTrue('/test/trgsrv' not in self.interface.services)
-        self.assertTrue('/test/trgsrv' not in self.interface.services_waiting)
 
-        # ensure all relevant lists have the remaining one
-        self.assertTrue('/test/empsrv' in self.interface.services_args)
-        self.assertTrue('/test/empsrv' in self.interface.services)
+    # def test_topic_inject(self):
+    #
+    #     self._injected = False
+    #     self._sub = rospy.Subscriber('~injected', String, self._inject)
+    #     pass
+    #
+    # def test_topic_extract(self):
+    #
+    #     self._extracted = False
+    #     self._pub = rospy.Publisher('~extracted', String, queue_size=1)
+    #     pass
 
-    # def test_reconfigure_topic(self):
-    #     config = {'services': [], 'actions': []}
-    #     config['topics'] = "['/test/1', '/test/2', '/test/3', '/testreg/.*', '/.*/regtest']"
-    #     self.interface.reconfigure(config, 1)
-    #     expected_dict = {'/test/1': -2, '/test/2': -2, '/test/3': -2, '/testreg/.*': -2, '/.*/regtest': -2}
-    #     expected_list = ['/test/1', '/test/2', '/test/3', '/testreg/.*', '/.*/regtest']
-    #     self.assertEqual(self.interface.topics_args, expected_dict)
-    #     # don't care about ordering, just contents
-    #     self.assertEqual(sorted(self.interface.topics_waiting), sorted(expected_list))
-
-    # @unittest.expectedFailure
-    # def test_reconfigure_service(self):
-    #     print("recon service")
-
-    # ##
-    # # Ensure that if there are malformed strings in the reconfigure request they are ignored
-    # def test_reconfigure_malformed(self):
-    #     config = {'actions': []}
-    #     config['topics'] = "['/test(/1bad', '/test/)bad', '/test/good']"
-    #     config['services'] = "['/test(/1bad', '/test/)bad', '/test/good']"
-    #     self.interface.reconfigure(config, 1)
-    #     assert self.interface.topics_args == {}
-    #     assert self.interface.services_args == []
         
 if __name__ == '__main__':
 
@@ -144,9 +115,9 @@ if __name__ == '__main__':
     # Ros arguments will tell us if we started from ros, or from straight python
     rosargs = [arg for arg in sys.argv if arg.startswith("__")]
 
-    if len(rosargs) > 0 :
-        rostest.rosrun('test_ros_interface', 'test_all', TestRosInterface)
-    else :
+    if len(rosargs) > 0:
+        rostest.rosrun('test_celeros', 'test_all', TestCeleros)
+    else:
         print("PURE PYTHON TEST NOT IMPLEMENTED YET")
         # Need this solved : http://answers.ros.org/question/215600/how-can-i-run-roscore-from-python/
 
