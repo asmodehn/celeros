@@ -36,12 +36,12 @@ class Timeout(object):
 
 class TestCeleros(unittest.TestCase):
 
-    def _inject(self, data):
+    def _topic(self, data):
         print data
         self._injected = True
-        pass
+        return String(data='got me a message!')
 
-    def _call(self, req):
+    def _service(self, req):
         print req
         self._called = True
         return TriggerResponse(success=True, message='test node called !')
@@ -73,7 +73,7 @@ class TestCeleros(unittest.TestCase):
     def test_service_call(self):
         # service to be called
         self._called = False
-        self._srv = rospy.Service('~called', Trigger, self._called)
+        self._srv = rospy.Service('~called', Trigger, self._service)
 
         # constant use just to prevent spinning too fast
         overspin_sleep_val = 0.02
@@ -85,22 +85,38 @@ class TestCeleros(unittest.TestCase):
         time.sleep(2)
 
         # we send the task to the worker
-        result = tasks.service_call.apply_async(['/celeros_test/called', '{}'])
+        result = tasks.service_call.apply_async(['/celeros_test/called'])
 
         # we wait until we get called
-        with Timeout(5) as t:
+        with Timeout(60) as t:
             while not t.timed_out and not self._called:
                 prevent_overspin_sleep()
 
         assert not t.timed_out and self._called
 
+    def test_topic_inject(self):
+        self._injected = False
+        self._sub = rospy.Subscriber('~injected', String, self._topic)
 
-    # def test_topic_inject(self):
-    #
-    #     self._injected = False
-    #     self._sub = rospy.Subscriber('~injected', String, self._inject)
-    #     pass
-    #
+        # constant use just to prevent spinning too fast
+        overspin_sleep_val = 0.02
+
+        def prevent_overspin_sleep():
+            time.sleep(overspin_sleep_val)
+
+        # we wait a bit for the service to be discovered
+        time.sleep(2)
+
+        # we send the task to the worker
+        result = tasks.topic_inject.apply_async(['/celeros_test/injected', {'data':'here is a string'}])
+
+        # we wait until we get called
+        with Timeout(60) as t:
+            while not t.timed_out and not self._injected:
+                prevent_overspin_sleep()
+
+        assert not t.timed_out and self._injected
+
     # def test_topic_extract(self):
     #
     #     self._extracted = False

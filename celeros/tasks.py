@@ -41,8 +41,8 @@ class ROSTask(Task):
 
 # TODO : we should probably move these to rostful-node as shared tasks...
 @celeros_app.task(bind=True)
-def topic_inject(self, topic_name, **kwargs):
-    res = self.app.ros_node_client.inject(topic_name, **kwargs)
+def topic_inject(self, topic_name, _msg_content=None, **kwargs):
+    res = self.app.ros_node_client.topic(topic_name, _msg_content, **kwargs)
     return res
 
 @celeros_app.task(bind=True)
@@ -52,8 +52,8 @@ def topic_extract(self, topic_name):
 
 
 @celeros_app.task(bind=True, base=ROSTask)
-def service_call(self, service_name, **kwargs):
-    res = self.app.ros_node_client.call(service_name, **kwargs)
+def service_call(self, service_name, _msg_content=None, **kwargs):
+    res = self.app.ros_node_client.service(service_name, _msg_content, **kwargs)
     return res
 
 @celeros_app.task(bind=True, base=AbortableTask)
