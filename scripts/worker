@@ -44,7 +44,7 @@ done
 BROKER=${BROKER:+"-b $BROKER"}
 TASKS=${TASKS:+"-A $TASKS"}
 CONFIG=${CONFIG:+"--config=$CONFIG"}
-HOSTNAME=${HOSTNAME:+"-h $HOSTNAME"}
+HOSTNAME=${HOSTNAME:+"-n $HOSTNAME"}
 set -x
 
 python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${HOSTNAME} ${ROSARGS} -c 1 -l DEBUG
