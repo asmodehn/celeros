@@ -27,9 +27,10 @@ class BootRostfulNode(bootsteps.StartStopStep):
 
     def __init__(self, worker, **kwargs):
         self.node_proc = RostfulNodeProcess()
-        ros_argv = kwargs['ros_arg'] if 'ros_arg' in kwargs else []
-        client_conn = self.node_proc.launch('celeros', ros_argv)
-        worker.app.ros_node_client = RostfulClient(client_conn)
+        self.ros_argv = kwargs['ros_arg'] if 'ros_arg' in kwargs else []
+        client_conn = self.node_proc.launch('celeros', self.ros_argv)
+        worker.app.ros_node_client = RostfulClient(client_conn)  # we do this in init so all pool processes have acces to it.
+        rospy.logwarn('{0!r} is starting'.format(worker))
         rospy.logwarn("finished boot init")
 
     def create(self, worker):
@@ -38,7 +39,8 @@ class BootRostfulNode(bootsteps.StartStopStep):
     def start(self, worker):
         # our step is started together with all other Worker/Consumer
         # bootsteps.
-        rospy.logwarn('{0!r} is starting'.format(worker))
+        pass  # not sure in which process this is run.
+
 
     def stop(self, worker):
         # the Consumer calls stop every time the consumer is restarted

@@ -75,7 +75,7 @@ class TestCeleros(unittest.TestCase):
         self._called = False
         self._srv = rospy.Service('~called', Trigger, self._service)
 
-        # constant use just to prevent spinning too fast
+        # constant used just to prevent spinning too fast
         overspin_sleep_val = 0.02
 
         def prevent_overspin_sleep():
