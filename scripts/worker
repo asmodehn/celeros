@@ -12,6 +12,10 @@ while [[ $# > 0 ]]
 do
 key="$1"
 case $key in
+    -h|--hostname)
+    HOSTNAME="$2"
+    shift 2
+    ;;
     -b|--broker-url)
     BROKER="$2"
     shift 2
@@ -40,7 +44,8 @@ done
 BROKER=${BROKER:+"-b $BROKER"}
 TASKS=${TASKS:+"-A $TASKS"}
 CONFIG=${CONFIG:+"--config=$CONFIG"}
+HOSTNAME=${HOSTNAME:+"-h $HOSTNAME"}
 set -x
 
-python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${ROSARGS} -c 1 -l DEBUG
+python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${HOSTNAME} ${ROSARGS} -c 1 -l DEBUG
 

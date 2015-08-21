@@ -6,7 +6,7 @@ from celery.bin import Option
 from .rosstart import BootRostfulNode
 import sys
 
-print("sys argv is ", sys.argv)
+
 celeros_app = Celery()
 
 # setting up default config
