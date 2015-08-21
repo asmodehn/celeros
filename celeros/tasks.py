@@ -8,7 +8,6 @@ from celery.utils.log import get_task_logger
 _logger = get_task_logger(__name__)
 
 #import required ros modules
-from rostful_node import RostfulCtx
 
 import inspect
 
@@ -23,21 +22,32 @@ import rostful_node
 from importlib import import_module
 
 
+from celery.utils.log import get_task_logger
+
+_logger = get_task_logger(__name__)
+
+
 # TODO : we should probably move these to rostful-node as shared tasks...
 @celeros_app.task(bind=True)
-def topic_inject(self, topic_name, **kwargs):
-    res = self.app.ros_node_client.inject(topic_name, **kwargs)
+def topic_inject(self, topic_name, _msg_content={}, **kwargs):
+    _logger.info("Injecting {msg} {kwargs} into {topic}".format(msg=_msg_content, kwargs=kwargs, topic=topic_name))
+    res = self.app.ros_node_client.topic_inject(topic_name, _msg_content, **kwargs)
+    _logger.info("Result : {res}".format(res=res))
     return res
 
 @celeros_app.task(bind=True)
 def topic_extract(self, topic_name):
-    res = self.app.ros_node_client.extract(topic_name)
+    _logger.info("Extracting from {topic}".format(topic=topic_name))
+    res = self.app.ros_node_client.topic_extract(topic_name)
+    _logger.info("Result : {res}".format(res=res))
     return res
 
 
 @celeros_app.task(bind=True)
-def service(self, service_name, **kwargs):
-    res = self.app.ros_node_client.call(service_name, **kwargs)
+def service_call(self, service_name, _msg_content={}, **kwargs):
+    _logger.info("Calling service {service} with {msg} {kwargs}".format(msg=_msg_content, kwargs=kwargs, service=service_name))
+    res = self.app.ros_node_client.service_call(service_name, _msg_content, **kwargs)
+    _logger.info("Result : {res}".format(res=res))
     return res
 
 @celeros_app.task(bind=True, base=AbortableTask)

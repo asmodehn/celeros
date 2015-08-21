@@ -42,9 +42,10 @@ esac
 done
 
 BROKER=${BROKER:+"-b $BROKER"}
-TASKS=${TASKS:+"-t $TASKS"}
-CONFIG=${CONFIG:+"-c $CONFIG"}
-HOSTNAME=${HOSTNAME:+"-h $HOSTNAME"}
+TASKS=${TASKS:+"-A $TASKS"}
+CONFIG=${CONFIG:+"--config=$CONFIG"}
+HOSTNAME=${HOSTNAME:+"-n $HOSTNAME"}
 set -x
 
-python -tt -m celeros ${BROKER} ${TASKS} ${CONFIG} ${HOSTNAME} ${ROSARGS}
+python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${HOSTNAME} ${ROSARGS} -c 1 -l INFO
+
