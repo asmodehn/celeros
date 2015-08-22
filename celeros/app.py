@@ -24,7 +24,7 @@ _logger = get_task_logger(__name__)
 
 
 # Basic task for simple tests
-@celeros_app.task(bind=True)
+@celeros_app.task()
 def add_together(a, b):
     _logger.info("Sleeping 7s")
     time.sleep(7)
