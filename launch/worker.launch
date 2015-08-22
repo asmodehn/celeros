@@ -8,8 +8,20 @@
   <arg name="actions" default="[]" />
   <arg name="enable_rocon" default="false"/>
   <arg name="rapps_namespaces" default="[]" /> <!-- TODO : default should be to watch all -> wildcard support needed -->
+  <arg name="use_custom_hostname" default="false" doc="set to true if you want to bypass celery automatic hostname detection."/>
+  <arg name="hostname" default="" doc="used to specify the hostname for the celery worker in multirobot simulation. Default value should be the output of hostname but roslaunch is limited."/>
 
   <!-- celery worker -->
+  <group if="$(arg use_custom_hostname)">
+  <node pkg="celeros" name="celeros" type="worker" args=" --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks) --worker-config $(arg worker_config) --hostname $(arg hostname)">
+    <param name="topics" value="$(arg topics)" type="str" />
+    <param name="services" value="$(arg services)" type="str" />
+    <param name="actions" value="$(arg actions)" type="str" />
+    <param name="enable_rocon" value="$(arg enable_rocon)" type="bool" />
+    <param name="rapps_namespaces" value="$(arg rapps_namespaces)" type="str"/>
+  </node>
+  </group>
+  <group unless="$(arg use_custom_hostname)">
   <node pkg="celeros" name="celeros" type="worker" args=" --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks) --worker-config $(arg worker_config)">
     <param name="topics" value="$(arg topics)" type="str" />
     <param name="services" value="$(arg services)" type="str" />
@@ -17,5 +29,6 @@
     <param name="enable_rocon" value="$(arg enable_rocon)" type="bool" />
     <param name="rapps_namespaces" value="$(arg rapps_namespaces)" type="str"/>
   </node>
+  </group>
 
 </launch>

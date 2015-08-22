@@ -5,9 +5,19 @@ import random
 
 from . import config
 from celery import Celery
+from celery.bin import Option
+from .rosstart import BootRostfulNode
+import sys
 
 celeros_app = Celery()
-celeros_app.config_from_object(config.Development)
+
+# setting up default config
+celeros_app.config_from_object(config)
+
+# setting up custom bootstep to start ROS node and pass ROS arguments to it
+celeros_app.steps['worker'].add(BootRostfulNode)
+celeros_app.user_options['worker'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
+
 
 from celery.utils.log import get_task_logger
 _logger = get_task_logger(__name__)
