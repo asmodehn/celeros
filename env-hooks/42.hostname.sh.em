@@ -7,9 +7,9 @@
 #  Then the kernel got in on the act and added support for '#!/path/to/program' and the Bourne shell got '#' comments, and the colon convention went by the wayside. 
 #  But if you come across a script that starts with a colon (Like this one), now you will know why. ~ Jonathan Leffler
 
-: ${ROS_HOSTNAME:=$(hostname)}         # we export ROS_HOSTNAME or $(hostname) as a default for celery hostname parameter
+: ${CELEROS_WORKER_HOSTNAME:=$(hostname)}         # we export ROS_HOSTNAME or $(hostname) as a default for celery hostname parameter
 
 
 # Exports
-export ROS_HOSTNAME
+export CELEROS_WORKER_HOSTNAME
 

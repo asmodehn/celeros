@@ -10,7 +10,7 @@ catkin_python_setup()
 
 catkin_package()
 
-catkin_add_env_hooks(42.hostname SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/resources/env-hooks)
+catkin_add_env_hooks(42.hostname SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
 
 # Install executable scripts
 install(DIRECTORY scripts/
