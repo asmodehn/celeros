@@ -13,7 +13,7 @@ do
 key="$1"
 case $key in
     -h|--hostname)
-    HOSTNAME="$2"
+    CELEROS_HOSTNAME="$2"
     shift 2
     ;;
     -b|--broker-url)
@@ -26,6 +26,10 @@ case $key in
     ;;
     -c|--worker-config)
     CONFIG="$2"
+    shift 2
+    ;;
+    -Q|--queues)
+    QUEUES="$2"
     shift 2
     ;;
     __*)
@@ -44,8 +48,9 @@ done
 BROKER=${BROKER:+"-b $BROKER"}
 TASKS=${TASKS:+"-A $TASKS"}
 CONFIG=${CONFIG:+"--config=$CONFIG"}
-HOSTNAME=${HOSTNAME:+"-n $HOSTNAME"}
+CELEROS_HOSTNAME=${CELEROS_HOSTNAME:+"-n $CELEROS_HOSTNAME"}
+QUEUES=${QUEUES:+"-Q $QUEUES"}
 set -x
 
-python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${HOSTNAME} ${ROSARGS} -c 1 -l INFO
+python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${QUEUES} ${CELEROS_HOSTNAME} ${ROSARGS} -c 1 -l INFO
 
