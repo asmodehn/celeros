@@ -1,3 +1,3 @@
 [submodule "deps/celerybeatredis"]
 	path = deps/celerybeatredis
-	url = https://github.com/asmodehn/celerybeatredis.git
+	url = https://github.com/asmodehn/celerybeatredis
