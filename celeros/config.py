@@ -13,7 +13,7 @@ CELERY_ALWAYS_EAGER = False  # FOR NOW : Always put into the queue
 # TODO : ?maybe? use True to match rapp/task behavior and start locally if possible, otherwise push into queue...
 
 CELERY_REDIS_SCHEDULER_URL = "redis://localhost:6379/2"
-CELERY_REDIS_SCHEDULER_KEY_PREFIX = 'tasks:daily:'
+CELERY_REDIS_SCHEDULER_KEY_PREFIX = 'schedule:'
 
 
 
