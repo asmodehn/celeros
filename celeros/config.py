@@ -14,6 +14,7 @@ CELERY_ALWAYS_EAGER = False  # FOR NOW : Always put into the queue
 
 CELERY_REDIS_SCHEDULER_URL = "redis://localhost:6379/2"
 CELERY_REDIS_SCHEDULER_KEY_PREFIX = 'schedule:'
+CELERYBEAT_MAX_LOOP_INTERVAL = 5
 
 
 
