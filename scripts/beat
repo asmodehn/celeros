@@ -48,5 +48,5 @@ SCHEDULER_CLS=${SCHEDULER_CLS:+"-S $SCHEDULER_CLS"}
 set -x
 
 # we ignore rosargs
-python -tt -m celery beat ${BROKER} ${TASKS} ${CONFIG} ${SCHEDULER_CLS}
+python -tt -m celery beat ${BROKER} ${TASKS} ${CONFIG} ${SCHEDULER_CLS} -l DEBUG
 
