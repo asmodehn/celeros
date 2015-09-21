@@ -16,11 +16,12 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'celeros',
             'celeros.celerybeatredis',
             'celery', 'celery.app', 'celery.apps', 'celery.backends', 'celery.backends.database', 'celery.bin', 'celery.concurrency', 'celery.contrib', 'celery.events', 'celery.fixups', 'celery.loaders', 'celery.security', 'celery.task', 'celery.utils', 'celery.utils.dispatch', 'celery.worker',
-
+            'kombu', 'kombu.async', 'kombu.transport', 'kombu.transport.sqlalchemy', 'kombu.transport.virtual', 'kombu.utils',
         ],
         package_dir={
             'celeros': 'celeros',
             'celery': 'deps/celery/celery',
+            'kombu': 'deps/kombu/kombu',
         },
     )
     setup(**setup_args)
@@ -38,10 +39,12 @@ else:  # using setuptools : http://pythonhosted.org/setuptools/
             'celeros',
             'celeros.celerybeatredis',
             'celery', 'celery.app', 'celery.apps', 'celery.backends', 'celery.backends.database', 'celery.bin', 'celery.concurrency', 'celery.contrib', 'celery.events', 'celery.fixups', 'celery.loaders', 'celery.security', 'celery.task', 'celery.utils', 'celery.utils.dispatch', 'celery.worker',
+            'kombu', 'kombu.async', 'kombu.transport', 'kombu.transport.sqlalchemy', 'kombu.transport.virtual', 'kombu.utils',
         ],
         package_dir={
             'celeros': 'celeros',
             'celery': 'deps/celery/celery',
+            'kombu': 'deps/kombu/kombu',
         },
         # this is better than using package data ( since behavior is a bit different from distutils... )
         include_package_data=True,  # use MANIFEST.in during install.

@@ -5,3 +5,6 @@
 [submodule "deps/celery"]
 	path = deps/celery
 	url = https://github.com/celery/celery.git
+[submodule "deps/kombu"]
+	path = deps/kombu
+	url = https://github.com/celery/kombu.git
