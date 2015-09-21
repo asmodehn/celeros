@@ -17,11 +17,13 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'celeros.celerybeatredis',
             'celery', 'celery.app', 'celery.apps', 'celery.backends', 'celery.backends.database', 'celery.bin', 'celery.concurrency', 'celery.contrib', 'celery.events', 'celery.fixups', 'celery.loaders', 'celery.security', 'celery.task', 'celery.utils', 'celery.utils.dispatch', 'celery.worker',
             'kombu', 'kombu.async', 'kombu.transport', 'kombu.transport.sqlalchemy', 'kombu.transport.virtual', 'kombu.utils',
+            'billiard', 'billiard.dummy', 'billiard.py2', 'billiard.py3',
         ],
         package_dir={
             'celeros': 'celeros',
             'celery': 'deps/celery/celery',
             'kombu': 'deps/kombu/kombu',
+            'billiard': 'deps/billiard/billiard',
         },
     )
     setup(**setup_args)
@@ -40,11 +42,13 @@ else:  # using setuptools : http://pythonhosted.org/setuptools/
             'celeros.celerybeatredis',
             'celery', 'celery.app', 'celery.apps', 'celery.backends', 'celery.backends.database', 'celery.bin', 'celery.concurrency', 'celery.contrib', 'celery.events', 'celery.fixups', 'celery.loaders', 'celery.security', 'celery.task', 'celery.utils', 'celery.utils.dispatch', 'celery.worker',
             'kombu', 'kombu.async', 'kombu.transport', 'kombu.transport.sqlalchemy', 'kombu.transport.virtual', 'kombu.utils',
+            'billiard', 'billiard.dummy', 'billiard.py2', 'billiard.py3',
         ],
         package_dir={
             'celeros': 'celeros',
             'celery': 'deps/celery/celery',
             'kombu': 'deps/kombu/kombu',
+            'billiard': 'deps/billiard/billiard',
         },
         # this is better than using package data ( since behavior is a bit different from distutils... )
         include_package_data=True,  # use MANIFEST.in during install.

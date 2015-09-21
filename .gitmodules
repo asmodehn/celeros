@@ -8,3 +8,6 @@
 [submodule "deps/kombu"]
 	path = deps/kombu
 	url = https://github.com/celery/kombu.git
+[submodule "deps/billiard"]
+	path = deps/billiard
+	url = https://github.com/celery/billiard.git
