@@ -2,3 +2,6 @@
 	path = deps/celerybeatredis
 	url = https://github.com/asmodehn/celerybeatredis
 	branch = celeros
+[submodule "deps/celery"]
+	path = deps/celery
+	url = https://github.com/celery/celery.git

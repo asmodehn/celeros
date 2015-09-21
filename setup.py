@@ -15,8 +15,12 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
         packages=[
             'celeros',
             'celeros.celerybeatredis',
+            'celery', 'celery.app', 'celery.apps', 'celery.backends', 'celery.backends.database', 'celery.bin', 'celery.concurrency', 'celery.contrib', 'celery.events', 'celery.fixups', 'celery.loaders', 'celery.security', 'celery.task', 'celery.utils', 'celery.utils.dispatch', 'celery.worker',
+
         ],
-        package_data={
+        package_dir={
+            'celeros': 'celeros',
+            'celery': 'deps/celery/celery',
         },
     )
     setup(**setup_args)
@@ -30,12 +34,18 @@ else:  # using setuptools : http://pythonhosted.org/setuptools/
         author='AlexV',
         author_email='asmodehn@gmail.com',
         license='BSD',
-        packages=['celeros'],
+        packages=[
+            'celeros',
+            'celeros.celerybeatredis',
+            'celery', 'celery.app', 'celery.apps', 'celery.backends', 'celery.backends.database', 'celery.bin', 'celery.concurrency', 'celery.contrib', 'celery.events', 'celery.fixups', 'celery.loaders', 'celery.security', 'celery.task', 'celery.utils', 'celery.utils.dispatch', 'celery.worker',
+        ],
+        package_dir={
+            'celeros': 'celeros',
+            'celery': 'deps/celery/celery',
+        },
         # this is better than using package data ( since behavior is a bit different from distutils... )
         include_package_data=True,  # use MANIFEST.in during install.
-        install_requires=[
-            'celery',
-            'flower==0.8.2',
+        install_requires=[  # External dependencies only. the ones that match package.xml. others are included in here already.
         ],
         zip_safe=False,  # TODO testing...
     )
