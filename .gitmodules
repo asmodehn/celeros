@@ -11,3 +11,6 @@
 [submodule "deps/billiard"]
 	path = deps/billiard
 	url = https://github.com/celery/billiard.git
+[submodule "deps/flower"]
+	path = deps/flower
+	url = https://github.com/asmodehn/flower.git
