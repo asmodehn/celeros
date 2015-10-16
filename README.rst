@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/asmodehn/celeros.svg?branch=indigo-devel
+    :target: https://travis-ci.org/asmodehn/celeros
+
 # celeros
 Celery ROS python interface
 
