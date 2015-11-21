@@ -22,11 +22,14 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
         ],
         package_dir={
             'celeros': 'celeros',
-            'celery': 'deps/celery/celery', # for devel : 'deps/celery' / for install : 'deps/celery/celery'. hopefully ros-indigo-catkin will fix this from 0.6.15
+            'celery': 'deps/celery/celery',
             'kombu': 'deps/kombu/kombu',
             'billiard': 'deps/billiard/billiard',
             'flower': 'deps/flower/flower',
         },
+        py_modules=[
+            'flask_celery',
+        ],
         package_data={
             'flower': ['templates/*', 'static/**/*', 'static/*.*']
         },

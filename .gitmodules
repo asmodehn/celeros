@@ -14,3 +14,6 @@
 [submodule "deps/flower"]
 	path = deps/flower
 	url = https://github.com/asmodehn/flower.git
+[submodule "deps/Flask-Celery-Helper"]
+	path = deps/Flask-Celery-Helper
+	url = https://github.com/Robpol86/Flask-Celery-Helper.git
