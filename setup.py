@@ -19,6 +19,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'kombu', 'kombu.async', 'kombu.transport', 'kombu.transport.sqlalchemy', 'kombu.transport.virtual', 'kombu.utils',
             'billiard', 'billiard.dummy', 'billiard.py2', 'billiard.py3',
             'flower', 'flower.api', 'flower.utils', 'flower.utils.backports', 'flower.views',
+            'tornado_cors',
         ],
         package_dir={
             'celeros': 'celeros',
@@ -26,6 +27,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'kombu': 'deps/kombu/kombu',
             'billiard': 'deps/billiard/billiard',
             'flower': 'deps/flower/flower',
+            'tornado_cors': 'deps/tornado-cors/tornado_cors',
         },
         py_modules=[
             'flask_celery',

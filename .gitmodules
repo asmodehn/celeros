@@ -17,3 +17,6 @@
 [submodule "deps/Flask-Celery-Helper"]
 	path = deps/Flask-Celery-Helper
 	url = https://github.com/Robpol86/Flask-Celery-Helper.git
+[submodule "deps/tornado-cors"]
+	path = deps/tornado-cors
+	url = https://github.com/globocom/tornado-cors.git
