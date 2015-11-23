@@ -1,5 +1,5 @@
 import time
-from .app import app
+from .app import celeros_app
 from celery import Task
 from celery.contrib.abortable import AbortableTask
 
@@ -8,7 +8,6 @@ from celery.utils.log import get_task_logger
 _logger = get_task_logger(__name__)
 
 #import required ros modules
-from rostful_node import RostfulCtx
 
 import inspect
 
@@ -17,30 +16,41 @@ import json
 from rosinterface import message_conversion as msgconv
 from rosinterface import ActionBack
 import datetime
+import random
 
 import rospy
 import rostful_node
 from importlib import import_module
 
+from celery.utils.log import get_task_logger
+
+_logger = get_task_logger(__name__)
+
 
 # TODO : we should probably move these to rostful-node as shared tasks...
-@app.task(bind=True)
-def topic_inject(self, topic_name, **kwargs):
-    res = self.app.ros_node_client.inject(topic_name, **kwargs)
+@celeros_app.task(bind=True)
+def topic_inject(self, topic_name, _msg_content={}, **kwargs):
+    _logger.info("Injecting {msg} {kwargs} into {topic}".format(msg=_msg_content, kwargs=kwargs, topic=topic_name))
+    res = self.app.ros_node_client.topic_inject(topic_name, _msg_content, **kwargs)
+    _logger.info("Result : {res}".format(res=res))
     return res
 
-@app.task(bind=True)
+@celeros_app.task(bind=True)
 def topic_extract(self, topic_name):
-    res = self.app.ros_node_client.extract(topic_name)
+    _logger.info("Extracting from {topic}".format(topic=topic_name))
+    res = self.app.ros_node_client.topic_extract(topic_name)
+    _logger.info("Result : {res}".format(res=res))
     return res
 
 
-@app.task(bind=True)
-def service(self, service_name, **kwargs):
-    res = self.app.ros_node_client.call(service_name, **kwargs)
+@celeros_app.task(bind=True)
+def service_call(self, service_name, _msg_content={}, **kwargs):
+    _logger.info("Calling service {service} with {msg} {kwargs}".format(msg=_msg_content, kwargs=kwargs, service=service_name))
+    res = self.app.ros_node_client.service_call(service_name, _msg_content, **kwargs)
+    _logger.info("Result : {res}".format(res=res))
     return res
 
-@app.task(bind=True, base=AbortableTask)
+@celeros_app.task(bind=True, base=AbortableTask)
 def action(self, action_name, **kwargs):
 #TODO : fix this, somehow... we should probably use the actionlib Client somwhere...
 
@@ -75,14 +85,14 @@ def action(self, action_name, **kwargs):
             elif res and res.get('goal_status', {}) and res.get('goal_status', {}).get('status', {}) in [4, 5, 8]:
                 #TODO : set state and info properly
                 self.update_state(
-                    state=app.states.FAILURE,
+                    state=celeros_app.states.FAILURE,
                     meta={'rostful_data': res,}
                 )
                 return
             elif res and res.get('goal_status', {}) and res.get('goal_status', {}).get('status', {}) in [2, 3]:
                 res = self.app.ros_node_client.action_result(action_name, goalID)
                 self.update_state(
-                    state=app.states.SUCCESS,
+                    state=celeros_app.states.SUCCESS,
                     meta={'rostful_data': res,}
                 )
 
@@ -93,7 +103,7 @@ def action(self, action_name, **kwargs):
     return {}  # unhandled status ??
 
 
-@app.task(bind=True, base=AbortableTask)
+@celeros_app.task(bind=True, base=AbortableTask)
 def rocon_app(self, rapp_name, **kwargs):
 
     rospy.wait_for_service('~start_rapp')

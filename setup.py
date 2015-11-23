@@ -14,6 +14,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
     setup_args = generate_distutils_setup(
         packages=[
             'celeros',
+            'celeros.celerybeatredis',
         ],
         package_data={
         },

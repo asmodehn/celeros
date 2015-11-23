@@ -10,6 +10,8 @@ catkin_python_setup()
 
 catkin_package()
 
+catkin_add_env_hooks(42.celeros_hostname SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
+
 # Install executable scripts
 install(DIRECTORY scripts/
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -22,14 +24,6 @@ file(GLOB_RECURSE ${PROJECT_NAME}_PY_SRCS
      RELATIVE ${PROJECT_SOURCE_DIR} src/*.py)
 roslint_python(${${PROJECT_NAME}_PY_SCRIPTS}
                ${${PROJECT_NAME}_PY_SRCS})
-
-install(DIRECTORY migrations/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/migrations
-)
-
-install(DIRECTORY interactions/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/interactions
-)
 
 install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch

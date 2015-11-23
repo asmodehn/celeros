@@ -1,30 +1,23 @@
-class Default(object):
-    DEBUG = False
-    TESTING = False
+DEBUG = False
+TESTING = False
 
-    # NOTE : useful only for sending task. worker get URL from cmd line args
-    REDIS_URL = 'redis://localhost:6379'
-    CELERY_BROKER_URL = REDIS_URL
-    CELERY_RESULT_BACKEND = REDIS_URL
-    CELERY_ACCEPT_CONTENT = ['application/json']
-    CELERY_TASK_SERIALIZER = 'json'
-    CELERY_RESULT_SERIALIZER = 'json'
+# NOTE : useful only for sending task. worker get URL from cmd line args
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = BROKER_URL
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
-    CELERY_ALWAYS_EAGER = False  # FOR NOW : Always put into the queue
-    # TODO : ?maybe? use True to match rapp/task behavior and start locally if possible, otherwise push into queue...
+CELERY_TRACK_STARTED = True  # we want to know when the task has started
+CELERY_ALWAYS_EAGER = False  # FOR NOW : Always put into the queue
+# TODO : ?maybe? use True to match rapp/task behavior and start locally if possible, otherwise push into queue...
 
-    CELERY_IMPORTS = 'gopher_rocon_bootstrap.celery_tasks'
+CELERY_REDIS_SCHEDULER_URL = "redis://localhost:6379/2"
+CELERY_REDIS_SCHEDULER_KEY_PREFIX = 'schedule:'
+CELERYBEAT_SYNC_EVERY = 1
+CELERYBEAT_MAX_LOOP_INTERVAL = 30
 
-
-class Development(Default):
-    DEBUG = True
-
-
-class Production(Default):
-    pass
-
-
-class Testing(Default):
-    TESTING = True
-
-
+# each worker will accept only a single task at a time
+CELERYD_CONCURRENCY = 1
+CELERYD_PREFETCH_MULTIPLIER = 1
+CELERY_ACKS_LATE = True

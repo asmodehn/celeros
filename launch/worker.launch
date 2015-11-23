@@ -1,15 +1,19 @@
 <launch>
   <!-- ******************************* Arguments ******************************* -->
   <arg name="broker_url" default="redis://localhost:6379"/>
-  <arg name="worker_tasks" default="celeros.tasks"/>
+  <arg name="worker_tasks" default="celeros.rostasks"/>
+  <arg name="worker_config" default="celeros.config"/>
   <arg name="topics" default="['turtle1/pose']" />
   <arg name="services" default="[]" />
   <arg name="actions" default="[]" />
   <arg name="enable_rocon" default="false"/>
   <arg name="rapps_namespaces" default="[]" /> <!-- TODO : default should be to watch all -> wildcard support needed -->
+  <arg name="hostname" default="$(env CELEROS_WORKER_HOSTNAME)" doc="used to specify the hostname for the celery worker in multirobot simulation. Default value should be the output of hostname but roslaunch is limited."/>
+  <arg name="queues" default="$(arg hostname)"/>
+  <arg name="loglevel" default="INFO" doc="INFO or DEBUG"/>
 
   <!-- celery worker -->
-  <node pkg="celeros" name="celeros" type="worker" args=" --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks)">
+  <node pkg="celeros" name="celeros" type="worker" args=" --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks) --worker-config $(arg worker_config) --hostname $(arg hostname) --queues $(arg queues) --loglevel $(arg loglevel)">
     <param name="topics" value="$(arg topics)" type="str" />
     <param name="services" value="$(arg services)" type="str" />
     <param name="actions" value="$(arg actions)" type="str" />
