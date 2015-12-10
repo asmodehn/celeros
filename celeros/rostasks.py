@@ -7,25 +7,6 @@ from celery.utils.log import get_task_logger
 
 _logger = get_task_logger(__name__)
 
-#import required ros modules
-
-import inspect
-
-import unicodedata
-import json
-from rosinterface import message_conversion as msgconv
-from rosinterface import ActionBack
-import datetime
-import random
-
-import rospy
-import rostful_node
-from importlib import import_module
-
-from celery.utils.log import get_task_logger
-
-_logger = get_task_logger(__name__)
-
 
 # TODO : we should probably move these to rostful-node as shared tasks...
 @celeros_app.task(bind=True)
@@ -101,28 +82,3 @@ def action(self, action_name, **kwargs):
         return res
 
     return {}  # unhandled status ??
-
-
-@celeros_app.task(bind=True, base=AbortableTask)
-def rocon_app(self, rapp_name, **kwargs):
-
-    rospy.wait_for_service('~start_rapp')
-    try:
-        call_service = rospy.ServiceProxy('~start_rapp', rostful_node.srv.StartRapp)
-        res_data = call_service(rapp_name, **kwargs)
-        if res_data.started:
-
-
-            time.sleep(42)
-
-            call_service = rospy.ServiceProxy('~stop_rapp', rostful_node.srv.StopRapp)
-            res_data = call_service()
-
-
-
-
-
-        return {'data_json': res_data.data_json}
-    except rospy.ServiceException, e:
-        print "Service call failed: %s" % e
-

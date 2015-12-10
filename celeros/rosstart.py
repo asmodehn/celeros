@@ -14,8 +14,8 @@ import multiprocessing
 from celery import Celery, bootsteps
 
 try:
-    from rostful_node.rostful_node_process import RostfulNodeProcess
-    from rostful_node.rostful_client import RostfulClient
+    from pyros.rosinterface import PyrosROS
+    from pyros.pyros_client import PyrosClient
 except ImportError, e:
     print "Exception caught : ", e
     print "rostful_node module is probably not accessible in sys.path. Please check, it is required to run celeros."
@@ -26,10 +26,10 @@ except ImportError, e:
 class BootRostfulNode(bootsteps.StartStopStep):
 
     def __init__(self, worker, **kwargs):
-        self.node_proc = RostfulNodeProcess()
         self.ros_argv = kwargs['ros_arg'] if 'ros_arg' in kwargs else []
-        client_conn = self.node_proc.launch('celeros', self.ros_argv)
-        worker.app.ros_node_client = RostfulClient(client_conn)  # we do this in init so all pool processes have acces to it.
+        self.node_proc = PyrosROS('celeros', self.ros_argv)
+        client_conn = self.node_proc.start()
+        worker.app.ros_node_client = PyrosClient(client_conn)  # we do this in init so all pool processes have acces to it.
         rospy.logwarn('{0!r} is starting'.format(worker))
         rospy.logwarn("finished boot init")
 
@@ -47,6 +47,6 @@ class BootRostfulNode(bootsteps.StartStopStep):
         # (i.e. connection is lost) and also at shutdown.  The Worker
         # will call stop at shutdown only.
         rospy.logwarn('{0!r} is stopping'.format(worker))
-        self.node_proc.terminate()
+        self.node_proc.shutdown()
 
 
