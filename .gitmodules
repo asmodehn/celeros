@@ -2,3 +2,21 @@
 	path = deps/celerybeatredis
 	url = https://github.com/asmodehn/celerybeatredis
 	branch = celeros
+[submodule "deps/celery"]
+	path = deps/celery
+	url = https://github.com/celery/celery.git
+[submodule "deps/kombu"]
+	path = deps/kombu
+	url = https://github.com/celery/kombu.git
+[submodule "deps/billiard"]
+	path = deps/billiard
+	url = https://github.com/celery/billiard.git
+[submodule "deps/flower"]
+	path = deps/flower
+	url = https://github.com/asmodehn/flower.git
+[submodule "deps/Flask-Celery-Helper"]
+	path = deps/Flask-Celery-Helper
+	url = https://github.com/Robpol86/Flask-Celery-Helper.git
+[submodule "deps/tornado-cors"]
+	path = deps/tornado-cors
+	url = https://github.com/globocom/tornado-cors.git
