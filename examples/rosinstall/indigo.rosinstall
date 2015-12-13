@@ -1,0 +1,2 @@
+- git: {local-name: celeros, version: indigo, uri: 'https://github.com/asmodehn/celeros.git'}
+- git: {local-name: rostful-node, version: indigo, uri: 'https://github.com/asmodehn/rostful-node.git'}
