@@ -41,6 +41,11 @@ case $key in
     #ros option ( multiple )
     shift 1
     ;;
+    ~*)  # matching relative remapping ros args
+    ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
+    #ros option (multiple)
+    shift 1
+    ;;
     *)
     # unknown option
     echo "Unknown Option"
