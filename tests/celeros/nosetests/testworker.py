@@ -5,12 +5,12 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'celeros')))
 
 from celeros.worker import Worker
-from celeros import config.Testing
+from celeros import config
 
 class TestWorker(object):
     def setUp(self):
         self.workerInstance = Worker()
-        cmd_conn = self.workerInstance.launch( broker_url='', tasks='', config='', ros_args=''):
+        cmd_conn = self.workerInstance.launch( broker_url='', tasks='', config='', ros_args='')
 
     def tearDown(self):
         self.workerInstance.async_stop()

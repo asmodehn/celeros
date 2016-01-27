@@ -11,7 +11,7 @@ from std_srvs.srv import Trigger, TriggerResponse
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from celeros import celeros_app
-from celeros import tasks
+from celeros import rostasks
 
 import roslaunch
 
@@ -85,7 +85,7 @@ class TestCeleros(unittest.TestCase):
         time.sleep(2)
 
         # we send the task to the worker
-        result = tasks.service_call.apply_async(['/celeros_test/called'])
+        result = rostasks.service_call.apply_async(['/celeros_test/called'])
 
         # we wait until we get called
         with Timeout(60) as t:
@@ -108,7 +108,7 @@ class TestCeleros(unittest.TestCase):
         time.sleep(2)
 
         # we send the task to the worker
-        result = tasks.topic_inject.apply_async(['/celeros_test/injected', {'data':'here is a string'}])
+        result = rostasks.topic_inject.apply_async(['/celeros_test/injected', {'data':'here is a string'}])
 
         # we wait until we get called
         with Timeout(60) as t:
