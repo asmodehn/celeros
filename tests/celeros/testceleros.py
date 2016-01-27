@@ -1,19 +1,89 @@
+
 #!/usr/bin/env python
+import logging
 import unittest
 import sys
 import os
 import time
-import rostest
-import rospy
-from std_msgs.msg import String, Empty
-from std_srvs.srv import Trigger, TriggerResponse
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# Unit test import
+try:
+    import rostest
+    import rospy
+    import roslaunch
+    from std_msgs.msg import String, Empty
+    from std_srvs.srv import Trigger, TriggerResponse
+    from pyros_setup import rostest_nose
+except ImportError as exc:
+    import os
+    import sys
+    import pyros_setup
+    pyros_setup = pyros_setup.delayed_import_auto(base_path=os.path.join(os.path.dirname(__file__), '..', '..', '..', '..'))
+    import rostest
+    import rospy
+    import roslaunch
+    from std_msgs.msg import String, Empty
+    from std_srvs.srv import Trigger, TriggerResponse
+    from pyros_setup import rostest_nose
 
 from celeros import celeros_app
 from celeros import rostasks
 
-import roslaunch
+launch = None
+worker_process = None
+
+
+# Should be used only by nose ( or other python test tool )
+# CAREFUL with comments, copy paste mistake are real...
+# CAREFUL dont use assertFalse -> easy to miss when reviewing code
+def setup_module():
+    if not rostest_nose.is_rostest_enabled():
+        rostest_nose.rostest_nose_setup_module()
+
+        # Start roslaunch
+        global launch
+        launch = roslaunch.scriptapi.ROSLaunch()
+        launch.start()
+
+        broker = "redis://localhost:6379"
+        config = "celeros.config"
+        tasks = "celeros.rostasks"
+
+        # start required worker - needs to match the content of *.test files for rostest to match
+        global worker_process
+
+        rospy.set_param('/worker/topics', "['/celeros_test/injected','/celeros_test/extracted']")
+        rospy.set_param('/worker/services', "['/celeros_test/called']")
+        worker_node = roslaunch.core.Node(
+                'celeros', 'worker',
+                name='worker',
+                args=" --broker-url " + broker +
+                     " --worker-tasks " + tasks +
+                     " --worker-config " + config
+        )
+        worker_process = launch.launch(worker_node)
+
+        # we still need a node to interact with topics
+        rospy.init_node('celeros_test', anonymous=True, disable_signals=True)
+        # CAREFUL : this should be done only once per PROCESS
+        # Here we enforce TEST MODULE 1<->1 PROCESS. ROStest style
+
+        # set required parameters - needs to match the content of *.test files for rostest to match
+        rospy.set_param("~broker", broker)
+        rospy.set_param("~config", config)
+        rospy.set_param("~tasks", tasks)
+
+
+def teardown_module():
+    if not rostest_nose.is_rostest_enabled():
+        # finishing all process are finished
+        if worker_process is not None:
+            worker_process.stop()
+
+        rospy.signal_shutdown('test complete')
+
+        rostest_nose.rostest_nose_teardown_module()
+
 
 class Timeout(object):
     """
@@ -47,10 +117,6 @@ class TestCeleros(unittest.TestCase):
         return TriggerResponse(success=True, message='test node called !')
 
     def setUp(self):
-        # Test code is a node
-        # => we can detect whats happening to this node, while also launching tasks.
-        rospy.init_node('celeros_test')
-
         config = rospy.get_param('~config')
         if config:
             rospy.logwarn("GOT TEST CONFIG PARAM {0}".format(config))
@@ -65,10 +131,19 @@ class TestCeleros(unittest.TestCase):
                 CELERY_RESULT_BACKEND=broker_url,
             )
 
+
+        tasks = rospy.get_param('~tasks')
+        if tasks:
+            rospy.logwarn("GOT TEST TASKS PARAM {0}".format(tasks))
+            celeros_app.conf.update(
+                BROKER_URL=broker_url,
+                CELERY_RESULT_BACKEND=broker_url,
+            )
+
+
     def tearDown(self):
         # the node will shutdown with the test process.
         pass
-
 
     def test_service_call(self):
         # service to be called
@@ -85,7 +160,7 @@ class TestCeleros(unittest.TestCase):
         time.sleep(2)
 
         # we send the task to the worker
-        result = rostasks.service_call.apply_async(['/celeros_test/called'])
+        result = rostasks.service_call.apply_async([rospy.resolve_name('~called')])
 
         # we wait until we get called
         with Timeout(60) as t:
@@ -123,31 +198,8 @@ class TestCeleros(unittest.TestCase):
     #     self._pub = rospy.Publisher('~extracted', String, queue_size=1)
     #     pass
 
-        
+
 if __name__ == '__main__':
-
+    print("ARGV : %r", sys.argv)
     # Note : Tests should be able to run with nosetests, or rostest ( which will launch nosetest here )
-
-    # Ros arguments will tell us if we started from ros, or from straight python
-    rosargs = [arg for arg in sys.argv if arg.startswith("__")]
-
-    if len(rosargs) > 0:
-        rostest.rosrun('test_celeros', 'test_all', TestCeleros)
-    else:
-        print("PURE PYTHON TEST NOT IMPLEMENTED YET")
-        # Need this solved : http://answers.ros.org/question/215600/how-can-i-run-roscore-from-python/
-
-        # TODO : use this to start all we need to test from here :
-
-        #Start roslaunch
-        #launch = roslaunch.scriptapi.ROSLaunch()
-        #launch.start()
-
-        # start required nodes
-        #empty_srv_node = roslaunch.core.Node('rostful_node', 'emptyService.py', name='empty_service')
-        #trigger_srv_node = roslaunch.core.Node('rostful_node', 'triggerService.py', name='trigger_service')
-        #empty_srv_process = launch.launch(empty_srv_node)
-        #trigger_srv_process = launch.launch(trigger_srv_node)
-
-        #import nose
-        #nose.runmodule()
+    rostest_nose.rostest_or_nose_main('celeros', 'testCeleros', TestCeleros, sys.argv)
