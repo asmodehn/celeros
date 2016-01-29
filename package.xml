@@ -23,11 +23,14 @@
   <run_depend>dynamic_reconfigure</run_depend>
   <run_depend>actionlib_msgs</run_depend>
   <run_depend>rospy</run_depend>
+  <run_depend>python-babel</run_depend> <!-- flower requires this -->
+  <run_depend>python-amqp</run_depend>
 
   <!-- these dependencies are only for testing -->
   <run_depend>python-yaml</run_depend>
   <build_depend>rostest</build_depend>
   <test_depend>rosunit</test_depend>
+  <test_depend>std_srvs</test_depend>
 
   <!-- documentation dependencies -->
   <build_depend>python-catkin-pkg</build_depend>
