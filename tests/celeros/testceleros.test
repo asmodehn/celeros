@@ -4,9 +4,9 @@
   <arg name="tasks" default="celeros.tasks"/>
 
   <!-- start the worker process ( which will start a node in a subprocess ) -->
-  <node name="worker" pkg="celeros" type="worker" output="screen" args=" --broker-url $(arg broker) --worker-tasks celeros.rostasks --worker-config celeros.config">
-    <param name="topics" value="['/celeros_test/injected','/celeros_test/extracted']" type="str" />
-    <param name="services" value="['/celeros_test/called']" type="str" />
+  <node name="celeros" pkg="celeros" type="worker" output="screen" args=" --broker-url $(arg broker) --worker-tasks celeros.rostasks --worker-config celeros.config">
+    <param name="topics" value="['/celeros_test.*/injected','/celeros_test.*/extracted']" type="str" />
+    <param name="services" value="['/celeros_test.*/called']" type="str" />
   </node>
 
   <test test-name="testworker" pkg="celeros" type="testceleros.py" name="celeros_test" time-limit="1000.0">

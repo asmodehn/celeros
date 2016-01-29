@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 import logging
 import unittest
@@ -32,6 +31,10 @@ from celeros import rostasks
 launch = None
 worker_process = None
 
+broker = "redis://localhost:6379"
+config = "celeros.config"
+tasks = "celeros.rostasks"
+
 
 # Should be used only by nose ( or other python test tool )
 # CAREFUL with comments, copy paste mistake are real...
@@ -45,15 +48,11 @@ def setup_module():
         launch = roslaunch.scriptapi.ROSLaunch()
         launch.start()
 
-        broker = "redis://localhost:6379"
-        config = "celeros.config"
-        tasks = "celeros.rostasks"
-
         # start required worker - needs to match the content of *.test files for rostest to match
         global worker_process
 
-        rospy.set_param('/worker/topics', "['/celeros_test/injected','/celeros_test/extracted']")
-        rospy.set_param('/worker/services', "['/celeros_test/called']")
+        rospy.set_param('/celeros/topics', "['/celeros_test.*/injected','/celeros_test.*/extracted']")
+        rospy.set_param('/celeros/services', "['/celeros_test.*/called']")
         worker_node = roslaunch.core.Node(
                 'celeros', 'worker',
                 name='worker',
@@ -63,24 +62,12 @@ def setup_module():
         )
         worker_process = launch.launch(worker_node)
 
-        # we still need a node to interact with topics
-        rospy.init_node('celeros_test', anonymous=True, disable_signals=True)
-        # CAREFUL : this should be done only once per PROCESS
-        # Here we enforce TEST MODULE 1<->1 PROCESS. ROStest style
-
-        # set required parameters - needs to match the content of *.test files for rostest to match
-        rospy.set_param("~broker", broker)
-        rospy.set_param("~config", config)
-        rospy.set_param("~tasks", tasks)
-
 
 def teardown_module():
     if not rostest_nose.is_rostest_enabled():
         # finishing all process are finished
         if worker_process is not None:
             worker_process.stop()
-
-        rospy.signal_shutdown('test complete')
 
         rostest_nose.rostest_nose_teardown_module()
 
@@ -105,6 +92,23 @@ class Timeout(object):
 
 
 class TestCeleros(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+
+        # we still need a node to interact with topics
+        rospy.init_node('celeros_test', anonymous=True)
+        # CAREFUL : this should be done only once per PROCESS
+        # Here we enforce TEST class 1<->1 PROCESS. ROStest style
+
+        # set required parameters - needs to match the content of *.test files for rostest to match
+        rospy.set_param("~broker", broker)
+        rospy.set_param("~config", config)
+        rospy.set_param("~tasks", tasks)
+
+    @classmethod
+    def tearDownClass(cls):
+        rospy.signal_shutdown('test complete')
 
     def _topic(self, data):
         print data
@@ -131,7 +135,6 @@ class TestCeleros(unittest.TestCase):
                 CELERY_RESULT_BACKEND=broker_url,
             )
 
-
         tasks = rospy.get_param('~tasks')
         if tasks:
             rospy.logwarn("GOT TEST TASKS PARAM {0}".format(tasks))
@@ -139,7 +142,6 @@ class TestCeleros(unittest.TestCase):
                 BROKER_URL=broker_url,
                 CELERY_RESULT_BACKEND=broker_url,
             )
-
 
     def tearDown(self):
         # the node will shutdown with the test process.
@@ -183,7 +185,7 @@ class TestCeleros(unittest.TestCase):
         time.sleep(2)
 
         # we send the task to the worker
-        result = rostasks.topic_inject.apply_async(['/celeros_test/injected', {'data':'here is a string'}])
+        result = rostasks.topic_inject.apply_async([rospy.resolve_name('~injected'), {'data':'here is a string'}])
 
         # we wait until we get called
         with Timeout(60) as t:
