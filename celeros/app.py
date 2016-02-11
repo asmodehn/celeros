@@ -23,6 +23,10 @@ from celery.utils.log import get_task_logger
 _logger = get_task_logger(__name__)
 
 
+# TODO : fancy task decorators and behaviors for ROS-style tasks
+# http://stackoverflow.com/questions/6393879/celery-task-and-customize-decorator
+
+
 # Basic task for simple tests
 @celeros_app.task()
 def add_together(a, b):
@@ -50,4 +54,4 @@ def long_task(self):
                           meta={'current': i, 'total': total,
                                 'status': message})
         time.sleep(1)
-    return {'current': 100, 'total': 100, 'status': 'Task completed! from flask_task_planner package', 'result': 42}
+    return {'current': 100, 'total': 100, 'status': 'Task completed! from celeros package', 'result': 42}
