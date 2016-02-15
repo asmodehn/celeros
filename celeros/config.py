@@ -1,18 +1,37 @@
+#
+#  sample celeros configuration.
+# this file can be overloaded and passed as argument to change the celeros configuration
+#
+# TODO : move to a cleaner way to do configuration ( probably after mutating into up a pure python package )
+
+#
+# These should probably be changed, depending on your celeros deployment
+#
 DEBUG = False
 TESTING = False
 
 # NOTE : useful only for sending task. worker get URL from cmd line args
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = BROKER_URL
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+BROKER_URL = CELERY_BROKER_URL
+# NOTE : used for getting results, and also aborting tasks
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
+
+# config used by beat for scheduler
+CELERY_REDIS_SCHEDULER_URL = "redis://localhost:6379/2"
+
+CELERY_IMPORTS = ('celeros.rostasks', )
+
+#
+# These are assume to always stay the same by celeros and should not be changed
+#
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-CELERY_TRACK_STARTED = True  # we want to know when the task has started
-CELERY_ALWAYS_EAGER = False  # FOR NOW : Always put into the queue
-# TODO : ?maybe? use True to match rapp/task behavior and start locally if possible, otherwise push into queue...
+CELERY_ALWAYS_EAGER = False  # We do NOT want the task to be executed immediately locally.
+CELERY_TRACK_STARTED = True  # We want to know when the task are started
 
-CELERY_REDIS_SCHEDULER_URL = "redis://localhost:6379/2"
+# config used by beat for scheduler
 CELERY_REDIS_SCHEDULER_KEY_PREFIX = 'schedule:'
 CELERYBEAT_SYNC_EVERY = 1
 CELERYBEAT_MAX_LOOP_INTERVAL = 30
@@ -21,3 +40,4 @@ CELERYBEAT_MAX_LOOP_INTERVAL = 30
 CELERYD_CONCURRENCY = 1
 CELERYD_PREFETCH_MULTIPLIER = 1
 CELERY_ACKS_LATE = True
+

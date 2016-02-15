@@ -5,7 +5,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #forcing the current working directory to our parent
 cd "$DIR"/..
 
-echo $*
+# to help debugging this
+#echo $*
 
 #necessary to handle Click arguments ( since ros doesnt pass it s argument in a standard/readline way )
 while [[ $# > 0 ]]
@@ -28,17 +29,17 @@ case $key in
     CONFIG="$2"
     shift 2
     ;;
-    -b|--broker-url)
+    -b|--broker)
     BROKER="$2"
     shift 2
     ;;
-    -t|--worker-tasks)
-    TASKS="$2"
+    -A|--app)
+    APP="$2"
     shift 2
     ;;
     __*)
-    ROSARGS="${ROSARGS:+$ROSARGS }$key"
-    #ros option
+    ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
+    #ros option ( multiple )
     shift 1
     ;;
     *)
@@ -54,11 +55,10 @@ ADDRESS=${ADDRESS:+"--address=$ADDRESS"}
 CONF=${CONF:+"--conf=$CONF"}
 CONFIG=${CONFIG:+"--config=$CONFIG"}
 BROKER=${BROKER:+"-b $BROKER"}
-TASKS=${TASKS:+"-A $TASKS"}
-ROSARGS=${ROSARGS:+"--ros_args=$ROSARGS"}
+APP=${APP:+"-A $APP"}
 
 set -x
 
-# need to call python to use the flask-ext-catkin version accessible after  "source <devel|install>/setup.bash"
-python -tt -m flower ${PORT} ${ADDRESS} ${CONF} ${CONFIG} ${BROKER} ${TASKS} "${ROSARGS}"
+# need to call python to use the flower version accessible after  "source <devel|install>/setup.bash"
+python -tt -m flower ${PORT} ${ADDRESS} ${CONF} ${CONFIG} ${BROKER} ${TASKS} ${ROSARGS}
 
