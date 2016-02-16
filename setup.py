@@ -20,6 +20,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'billiard', 'billiard.dummy', 'billiard.py2', 'billiard.py3',
             'flower', 'flower.api', 'flower.utils', 'flower.utils.backports', 'flower.views',
             'tornado_cors',
+            'redis',
         ],
         package_dir={
             'celeros': 'celeros',
@@ -28,6 +29,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'billiard': 'deps/billiard/billiard',
             'flower': 'deps/flower/flower',
             'tornado_cors': 'deps/tornado-cors/tornado_cors',
+            'redis': 'deps/redis/redis',
         },
         py_modules=[
             'flask_celery',
