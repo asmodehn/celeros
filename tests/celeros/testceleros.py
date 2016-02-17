@@ -31,9 +31,9 @@ from celeros import rostasks
 launch = None
 worker_process = None
 
-broker = "redis://localhost:6379"
+# TODO : maybe we need a config for tests specifically ( instead of using the default )
+app = "celeros.app"  # OR celeros.celeros_app OR celeros_app ( to match code )??
 config = "celeros.config"
-tasks = "celeros.rostasks"
 
 
 # Should be used only by nose ( or other python test tool )
@@ -56,9 +56,8 @@ def setup_module():
         worker_node = roslaunch.core.Node(
                 'celeros', 'worker',
                 name='worker',
-                args=" --broker-url " + broker +
-                     " --worker-tasks " + tasks +
-                     " --worker-config " + config
+                args=" -A " + app +
+                     " --config " + config
         )
         worker_process = launch.launch(worker_node)
 
@@ -102,9 +101,7 @@ class TestCeleros(unittest.TestCase):
         # Here we enforce TEST class 1<->1 PROCESS. ROStest style
 
         # set required parameters - needs to match the content of *.test files for rostest to match
-        rospy.set_param("~broker", broker)
         rospy.set_param("~config", config)
-        rospy.set_param("~tasks", tasks)
 
     @classmethod
     def tearDownClass(cls):
@@ -125,23 +122,6 @@ class TestCeleros(unittest.TestCase):
         if config:
             rospy.logwarn("GOT TEST CONFIG PARAM {0}".format(config))
             celeros_app.config_from_object(config)
-
-        # getting the parameters to configure celery here in the same way as the worker :
-        broker_url = rospy.get_param('~broker')
-        if broker_url:
-            rospy.logwarn("GOT TEST BROKER PARAM {0}".format(broker_url))
-            celeros_app.conf.update(
-                BROKER_URL=broker_url,
-                CELERY_RESULT_BACKEND=broker_url,
-            )
-
-        tasks = rospy.get_param('~tasks')
-        if tasks:
-            rospy.logwarn("GOT TEST TASKS PARAM {0}".format(tasks))
-            celeros_app.conf.update(
-                BROKER_URL=broker_url,
-                CELERY_RESULT_BACKEND=broker_url,
-            )
 
     def tearDown(self):
         # the node will shutdown with the test process.

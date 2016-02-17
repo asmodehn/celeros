@@ -33,3 +33,23 @@ install(DIRECTORY launch/
 if (CATKIN_ENABLE_TESTING)
   add_subdirectory(tests)
 endif()
+
+
+##############################################################################
+# Installs
+##############################################################################
+
+install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+#TODO : REDIS URL
+#catkin_add_env_hooks(42.gopher_hostname SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
+
+# special install since flower only support files as config ( and not modules ) for now...
+install(FILES celeros/flowerconfig.py
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/celeros/
+)
+
+# special install since celeros only support files as config ( and not modules ) for now it seems...
+install(FILES celeros/config.py
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/celeros/
+)

@@ -20,6 +20,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'billiard', 'billiard.dummy', 'billiard.py2', 'billiard.py3',
             'flower', 'flower.api', 'flower.utils', 'flower.utils.backports', 'flower.views',
             'tornado_cors',
+            'redis',
         ],
         package_dir={
             'celeros': 'celeros',
@@ -28,6 +29,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
             'billiard': 'deps/billiard/billiard',
             'flower': 'deps/flower/flower',
             'tornado_cors': 'deps/tornado-cors/tornado_cors',
+            'redis': 'deps/redis/redis',
         },
         py_modules=[
             'flask_celery',
@@ -65,6 +67,8 @@ else:  # using setuptools : http://pythonhosted.org/setuptools/
         package_data={
             'flower': ['templates/*', 'static/**/*', 'static/*.*']
         },
+        # TODO : config files install via data_files. careful : https://bitbucket.org/pypa/setuptools/issues/130
+        # or maybe move to wheel ?
         # this is better than using package data ( since behavior is a bit different from distutils... )
         include_package_data=True,  # use MANIFEST.in during install.
         install_requires=[  # External dependencies only. the ones that match package.xml. others are included in here already.
