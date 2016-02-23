@@ -20,3 +20,6 @@
 [submodule "deps/tornado-cors"]
 	path = deps/tornado-cors
 	url = https://github.com/globocom/tornado-cors.git
+[submodule "deps/redis"]
+	path = deps/redis
+	url = https://github.com/andymccurdy/redis-py.git

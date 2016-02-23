@@ -1,14 +1,12 @@
 <launch>
   <!-- ******************************* Arguments ******************************* -->
-  <arg name="broker_url" default="redis://localhost:6379"/>
-  <arg name="worker_tasks" default="celeros.tasks"/>
-  <arg name="address" default="localhost"/>
+  <arg name="address" default="0.0.0.0"/>
   <arg name="port" default="5555"/>
-  <arg name="conf" default="flowerconfig.py"/>
-  <arg name="config" default="celeryconfig.py"/>
+  <arg name="conf" default="$(find celeros)/celeros/flowerconfig.py"/>  <!-- flower require a file path for config -->
+  <arg name="config" default="celeros.config"/>  <!-- better to pass config module to celeros and let python figure out the path -->
 
   <!-- flower server -->
-  <node pkg="celeros" name="flower" type="flower" args="--port $(arg port) --address $(arg address) --conf $(arg conf) --config $(arg config) --broker-url $(arg broker_url) --worker-tasks $(arg worker_tasks)">
+  <node pkg="celeros" name="flower" type="flower" args="--port $(arg port) --address $(arg address) --conf $(arg conf) --config $(arg config)">
   </node>
 
 </launch>

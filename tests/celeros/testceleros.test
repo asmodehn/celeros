@@ -1,18 +1,16 @@
 <launch>
-  <arg name="broker" default="redis://localhost:6379"/>
+
+  <arg name="app" default="celeros.app"/>  <!-- OR celeros.celeros_app ?? -->
   <arg name="config" default="celeros.config"/>
-  <arg name="tasks" default="celeros.tasks"/>
 
   <!-- start the worker process ( which will start a node in a subprocess ) -->
-  <node name="worker" pkg="celeros" type="worker" output="screen" args=" --broker-url $(arg broker) --worker-tasks celeros.tasks --worker-config celeros.config">
-    <param name="topics" value="['/celeros_test/injected','/celeros_test/extracted']" type="str" />
-    <param name="services" value="['/celeros_test/called']" type="str" />
+  <node name="celeros" pkg="celeros" type="worker" output="screen" args=" -A $(arg app) --config celeros.config">
+    <param name="topics" value="['/celeros_test.*/injected','/celeros_test.*/extracted']" type="str" />
+    <param name="services" value="['/celeros_test.*/called']" type="str" />
   </node>
 
   <test test-name="testworker" pkg="celeros" type="testceleros.py" name="celeros_test" time-limit="1000.0">
     <!-- the task sender should have same configuration as receiver to avoid any inconsistencies -->
-    <param name="broker" value="$(arg broker)"/>
     <param name="config" value="$(arg config)"/>
-    <param name="tasks" value="$(arg tasks)"/>
   </test>
 </launch>

@@ -11,19 +11,27 @@ import sys
 
 celeros_app = Celery()
 
-# setting up default config
-celeros_app.config_from_object(config)
+# BEWARE : https://github.com/celery/celery/issues/3050
+# doing this prevent setting config from command line
+#celeros_app.config_from_object(config)
 
 # setting up custom bootstep to start ROS node and pass ROS arguments to it
 celeros_app.steps['worker'].add(BootRostfulNode)
 celeros_app.user_options['worker'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
 
 
+#############################
+# Basic task for simple tests
+#############################
+
 from celery.utils.log import get_task_logger
 _logger = get_task_logger(__name__)
 
 
-# Basic task for simple tests
+# TODO : fancy task decorators and behaviors for ROS-style tasks
+# http://stackoverflow.com/questions/6393879/celery-task-and-customize-decorator
+
+
 @celeros_app.task()
 def add_together(a, b):
     _logger.info("Sleeping 7s")
@@ -50,4 +58,4 @@ def long_task(self):
                           meta={'current': i, 'total': total,
                                 'status': message})
         time.sleep(1)
-    return {'current': 100, 'total': 100, 'status': 'Task completed! from flask_task_planner package', 'result': 42}
+    return {'current': 100, 'total': 100, 'status': 'Task completed! from celeros package', 'result': 42}

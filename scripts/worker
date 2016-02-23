@@ -5,7 +5,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #forcing the current working directory to our parent
 cd "$DIR"/..
 
-echo $*
+# to help debugging this
+#echo $*
 
 #necessary to handle arguments ( since ros doesnt pass it s argument in a standard/readline way )
 while [[ $# > 0 ]]
@@ -16,15 +17,15 @@ case $key in
     CELEROS_HOSTNAME="$2"
     shift 2
     ;;
-    -b|--broker-url)
+    -b|--broker)
     BROKER="$2"
     shift 2
     ;;
-    -t|--worker-tasks)
-    TASKS="$2"
+    -A|--app)
+    APP="$2"
     shift 2
     ;;
-    -c|--worker-config)
+    -c|--config)
     CONFIG="$2"
     shift 2
     ;;
@@ -41,6 +42,11 @@ case $key in
     #ros option ( multiple )
     shift 1
     ;;
+    ~*)  # matching relative remapping ros args
+    ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
+    #ros option (multiple)
+    shift 1
+    ;;
     *)
     # unknown option
     echo "Unknown Option"
@@ -50,11 +56,11 @@ esac
 done
 
 BROKER=${BROKER:+"-b $BROKER"}
-TASKS=${TASKS:+"-A $TASKS"}
+APP=${APP:+"-A $APP"}
 CONFIG=${CONFIG:+"--config=$CONFIG"}
 CELEROS_HOSTNAME=${CELEROS_HOSTNAME:+"-n $CELEROS_HOSTNAME"}
 QUEUES=${QUEUES:+"-Q $QUEUES"}
-LOG=${QUEUES:+"-l $LOG"}
+LOG=${LOG:+"-l $LOG"}
 set -x
 
-python -tt -m celery worker ${BROKER} ${TASKS} ${CONFIG} ${QUEUES} ${CELEROS_HOSTNAME} ${ROSARGS} -c 1 ${LOG}
+python -tt -m celery ${APP} worker ${BROKER} ${CONFIG} ${QUEUES} ${CELEROS_HOSTNAME} ${ROSARGS} ${LOG}

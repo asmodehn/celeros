@@ -8,13 +8,13 @@ from celery.utils.log import get_task_logger
 _logger = get_task_logger(__name__)
 
 
-# TODO : we should probably move these to rostful-node as shared tasks...
 @celeros_app.task(bind=True)
 def topic_inject(self, topic_name, _msg_content={}, **kwargs):
     _logger.info("Injecting {msg} {kwargs} into {topic}".format(msg=_msg_content, kwargs=kwargs, topic=topic_name))
     res = self.app.ros_node_client.topic_inject(topic_name, _msg_content, **kwargs)
     _logger.info("Result : {res}".format(res=res))
     return res
+
 
 @celeros_app.task(bind=True)
 def topic_extract(self, topic_name):
