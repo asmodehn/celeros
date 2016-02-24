@@ -8,6 +8,8 @@ cd "$DIR"/..
 # to help debugging this
 #echo $*
 
+#TODO : integrate with worker or beat so starting celeros always start flower (useful for monitoring and debugging)
+
 #necessary to handle Click arguments ( since ros doesnt pass it s argument in a standard/readline way )
 while [[ $# > 0 ]]
 do
