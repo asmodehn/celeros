@@ -7,10 +7,16 @@ import logging
 import multiprocessing
     
 from celery import Celery, bootsteps
+from celery.platforms import signals as _signals
+from celery.utils.log import get_logger
+
+logger = get_logger(__name__)
 
 
 # TODO : configuration for tests...
 class BootPyrosNode(bootsteps.StartStopStep):
+
+    requires = ('celery.worker.components:Pool',)
 
     def __init__(self, worker, **kwargs):
         logging.warn('{0!r} is starting from {1}'.format(worker, __file__))
@@ -56,7 +62,36 @@ class BootPyrosNode(bootsteps.StartStopStep):
         # the Consumer calls stop every time the consumer is restarted
         # (i.e. connection is lost) and also at shutdown.  The Worker
         # will call stop at shutdown only.
-        logging.warn('{0!r} is stopping'.format(worker))
+        logging.warn('{0!r} is stopping. Attempting termination of current tasks...'.format(worker))
+
+        # Following code from worker.control.revoke
+
+        task_ids = []
+        terminated = set()
+
+        # cleaning all reserved tasks since we are shutting down
+        signum = _signals.signum('TERM')
+        for request in [r for r in worker.state.reserved_requests]:
+            if request.id not in terminated:
+                task_ids.append(request.id)
+                terminated.add(request.id)
+                logger.info('Terminating %s (%s)', request.id, signum)
+                request.terminate(worker.pool, signal=signum)
+
+        # Aborting currently running tasks, and triggering soft timeout exception to allow task to clean up.
+        signum = _signals.signum('USR1')
+        for request in [r for r in worker.state.active_requests]:
+            if request.id not in terminated:
+                task_ids.append(request.id)
+                terminated.add(request.id)
+                logger.info('Terminating %s (%s)', request.id, signum)
+                request.terminate(worker.pool, signal=signum)  # triggering SoftTimeoutException in Task
+
+        if terminated:
+            terminatedstr = ', '.join(task_ids)
+            logger.info('Tasks flagged as revoked: %s', terminatedstr)
+
         self.node_proc.shutdown()
+
 
 
