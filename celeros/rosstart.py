@@ -66,14 +66,12 @@ class BootPyrosNode(bootsteps.StartStopStep):
 
         # Following code from worker.control.revoke
 
-        task_ids = []
         terminated = set()
 
         # cleaning all reserved tasks since we are shutting down
         signum = _signals.signum('TERM')
         for request in [r for r in worker.state.reserved_requests]:
             if request.id not in terminated:
-                task_ids.append(request.id)
                 terminated.add(request.id)
                 logger.info('Terminating %s (%s)', request.id, signum)
                 request.terminate(worker.pool, signal=signum)
@@ -82,13 +80,12 @@ class BootPyrosNode(bootsteps.StartStopStep):
         signum = _signals.signum('USR1')
         for request in [r for r in worker.state.active_requests]:
             if request.id not in terminated:
-                task_ids.append(request.id)
                 terminated.add(request.id)
                 logger.info('Terminating %s (%s)', request.id, signum)
                 request.terminate(worker.pool, signal=signum)  # triggering SoftTimeoutException in Task
 
         if terminated:
-            terminatedstr = ', '.join(task_ids)
+            terminatedstr = ', '.join(terminated)
             logger.info('Tasks flagged as revoked: %s', terminatedstr)
 
         self.node_proc.shutdown()
