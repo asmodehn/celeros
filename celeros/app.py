@@ -6,9 +6,10 @@ import random
 from . import config
 from celery import Celery
 from celery.bin import Option
-from .rosstart import BootRostfulNode
+from .rosstart import BootPyrosNode
 import sys
 
+# move that into __init__. It seems celery apps usually follow same package pattern as flask.
 celeros_app = Celery()
 
 # BEWARE : https://github.com/celery/celery/issues/3050
@@ -16,7 +17,7 @@ celeros_app = Celery()
 #celeros_app.config_from_object(config)
 
 # setting up custom bootstep to start ROS node and pass ROS arguments to it
-celeros_app.steps['worker'].add(BootRostfulNode)
+celeros_app.steps['worker'].add(BootPyrosNode)
 celeros_app.user_options['worker'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
 
 
