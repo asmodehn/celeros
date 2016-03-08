@@ -5,21 +5,29 @@ import os
 
 import logging
 import multiprocessing
-    
+from functools import partial
+
+import pyros
 from celery import Celery, bootsteps
 from celery.platforms import signals as _signals
 from celery.utils.log import get_logger
 
-logger = get_logger(__name__)
+_logger = get_logger(__name__)
 
+
+# TODO : fix logging : http://docs.celeryproject.org/en/latest/userguide/extending.html#installing-bootsteps
+# logging is not reentrant, and methods here are called in different ways...
 
 # TODO : configuration for tests...
-class BootPyrosNode(bootsteps.StartStopStep):
-
-    requires = ('celery.worker.components:Pool',)
+class PyrosBoot(bootsteps.StartStopStep):
+    """
+    This is a worker bootstep. It starts the pyros node and a client.
+    That client can then be used in tasks and in other places in celery customization code
+    """
+    requires = ('celery.worker.components:Pool', )
 
     def __init__(self, worker, **kwargs):
-        logging.warn('{0!r} is starting from {1}'.format(worker, __file__))
+        logging.warn('{0!r} bootstep {1}'.format(worker, __file__))
 
         # dynamic setup and import ( in different process now )
         try:
@@ -56,16 +64,13 @@ class BootPyrosNode(bootsteps.StartStopStep):
     def start(self, worker):
         # our step is started together with all other Worker/Consumer
         # bootsteps.
-        pass  # not sure in which process this is run.
+        pass
 
     def stop(self, worker):
-        # the Consumer calls stop every time the consumer is restarted
-        # (i.e. connection is lost) and also at shutdown.  The Worker
-        # will call stop at shutdown only.
+        # The Worker will call stop at shutdown only.
         logging.warn('{0!r} is stopping. Attempting termination of current tasks...'.format(worker))
 
         # Following code from worker.control.revoke
-
         terminated = set()
 
         # cleaning all reserved tasks since we are shutting down
@@ -73,7 +78,7 @@ class BootPyrosNode(bootsteps.StartStopStep):
         for request in [r for r in worker.state.reserved_requests]:
             if request.id not in terminated:
                 terminated.add(request.id)
-                logger.info('Terminating %s (%s)', request.id, signum)
+                _logger.info('Terminating %s (%s)', request.id, signum)
                 request.terminate(worker.pool, signal=signum)
 
         # Aborting currently running tasks, and triggering soft timeout exception to allow task to clean up.
@@ -81,12 +86,12 @@ class BootPyrosNode(bootsteps.StartStopStep):
         for request in [r for r in worker.state.active_requests]:
             if request.id not in terminated:
                 terminated.add(request.id)
-                logger.info('Terminating %s (%s)', request.id, signum)
+                _logger.info('Terminating %s (%s)', request.id, signum)
                 request.terminate(worker.pool, signal=signum)  # triggering SoftTimeoutException in Task
 
         if terminated:
             terminatedstr = ', '.join(terminated)
-            logger.info('Tasks flagged as revoked: %s', terminatedstr)
+            _logger.info('Tasks flagged as revoked: %s', terminatedstr)
 
         self.node_proc.shutdown()
 
