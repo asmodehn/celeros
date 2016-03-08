@@ -72,6 +72,4 @@ QUEUES=${QUEUES:+"-Q $QUEUES"}
 LOG=${LOG:+"-l $LOG"}
 set -x
 
-# TMP : testing solo class ( since we want only one thread anyway... )
-# Less celeros process running, but control commands may be blocked by tasks...
-python -tt -m celery ${APP} worker ${BEAT} ${BROKER} ${CONFIG} -P solo ${QUEUES} ${CELEROS_HOSTNAME} ${ROSARGS} ${LOG}
+python -tt -m celery ${APP} worker ${BEAT} ${BROKER} ${CONFIG} ${QUEUES} ${CELEROS_HOSTNAME} ${ROSARGS} ${LOG}
