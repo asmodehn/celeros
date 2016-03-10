@@ -26,9 +26,10 @@ class Router(MapRoute):
 
     # No simple way to get the map from celery,
     # Done in configuration for now...
-    def __init__(self, map):
+    def __init__(self, map, default):
         print("Setting up default routes from {map}".format(map=map))
         super(Router, self).__init__(map)
+        self.defaultq = default
 
     # NOTE : celery logger doesnt seem to work(no output) here
     def route_for_task(self, task, args=None, kwargs=None):
@@ -44,16 +45,18 @@ class Router(MapRoute):
             # Getting the usual route
             res = super(Router, self).route_for_task(task, args=args, kwargs=kwargs)
 
+            # We will set the default here, if res is not yet set by configured routes
+            if res is None:
+                res = {'queue': self.defaultq}
+
             # if simulated run, we prepend "simulated." string to reroute the task
             # WARNING : passing this as a part of args will not be detected here !
             # TODO : use options https://github.com/celery/celery/pull/2217
-            if not kwargs.get("simulated", False):
-                print("Task -> Routing to {defq}".format(defq=res))
-                return res
-            else:
+            if kwargs.get("simulated", False):
                 res['queue'] = 'simulated.' + res.get('queue', '')
-                print("Simulated Task -> Routing to {simq}".format(simq=res))
-                return res
+
+            print("Routing Task {simq}".format(simq=res))
+            return res
 
         except Exception as exc:
             print("Exception in Router : {0}".format(exc))

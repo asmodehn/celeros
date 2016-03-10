@@ -50,13 +50,8 @@ CELERY_ACKS_LATE = True
 # Force each worker to have its own queue. So we can send specific task to each.
 CELERY_WORKER_DIRECT = True
 
+# Routes are ony important for task sender : we do not care about simulation or not here.
 CELERY_DEFAULT_QUEUE = 'celeros'
-
-CELERY_QUEUES = [
-    Queue('celeros', routing_key='celeros.#'),
-    Queue('simulated.celeros', routing_key='simulated.#'),
-]
-
 CELEROS_ROUTES = {
     'celeros.app.add_together': {'queue': 'celeros'},
     'celeros.app.long_task': {'queue': 'celeros'},
@@ -64,7 +59,7 @@ CELEROS_ROUTES = {
 
 # Extending celery router
 # celeros router automatically prepend "simulated." if the task run is intended to be simulated.
-CELERY_ROUTES = (celeros.Router(CELEROS_ROUTES), )
+CELERY_ROUTES = (celeros.Router(CELEROS_ROUTES, CELERY_DEFAULT_QUEUE), )
 
 #
 # Custom Celeros settings:
@@ -79,7 +74,6 @@ CELEROS_BATTERY_TOPIC = '/robot/battery'
 # (List of) tuples of battery levels and queues that can be consumed from,
 # only if the battery has a percentage higher than the specified level
 CELEROS_MIN_BATTERY_PCT_QUEUE = [
-    (20, 'celeros'),
-    (10, 'simulated.celeros')
+    (20, 'celeros')
 ]
-
+# This will automatically create the required queues. No need to specify CELERY_QUEUES here.

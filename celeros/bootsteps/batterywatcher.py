@@ -14,11 +14,6 @@ from celery.utils.functional import maybe_list
 
 _logger = get_logger(__name__)
 
-# duck punching to make sure our worker has the required dependencies if we import this bootstep:
-from .pyrosboot import PyrosBoot
-PyrosBoot.requires += ('celery.worker.components:Timer', )
-
-
 # TODO : fix logging : http://docs.celeryproject.org/en/latest/userguide/extending.html#installing-bootsteps
 # logging is not reentrant, and methods here are called in different ways...
 
@@ -65,10 +60,11 @@ class BatteryWatcher(bootsteps.StartStopStep):
                 if battpct is None:
                     _logger.warn("Battery percentage not found in battery message : {0}".format(battery_msg))
                 else:
-                    _logger.warn("Watching Battery : {0}% ".format(battpct))
+                    # _logger.info("Watching Battery : {0}% ".format(battpct))
                     # enabling/disabling consumer to queues bound by battery requirements
                     for bpct, q in maybe_list(worker.app.conf.CELEROS_MIN_BATTERY_PCT_QUEUE):
                         if battpct < bpct:
+                            _logger.warn("Battery Low {0}%. Ignoring task queue {1} until battery is recharged.".format(battpct, q))
                             worker.cancel_task_queue(q)
                         else:
                             worker.add_task_queue(q)
@@ -83,8 +79,7 @@ class BatteryWatcher(bootsteps.StartStopStep):
     def stop(self, worker):
         # The Worker will call stop at shutdown only.
         logging.warn('{0!r} stopping {1}'.format(worker, __file__))
-        if self.timer:
-            self.timer.clear()
+        worker.timer.clear()
 
 
 

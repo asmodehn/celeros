@@ -11,10 +11,9 @@
     Celery arguments for worker
   -->
   <arg name="app" default="celeros.app" />
-  <arg name="config" default="celeros.config"/>
+  <arg name="config" default="celeros.config" unless="$(arg simulation)"/>
+  <arg name="config" default="celeros.config_simulation" if="$(arg simulation)"/>
   <arg name="hostname" default="$(env CELEROS_WORKER_HOSTNAME)" doc="used to specify the hostname for the celery worker in multirobot simulation. Default value should be the output of hostname but roslaunch is limited."/>
-  <arg name="queues" default="celesim" if="$(arg simulation)" />
-  <arg name="queues" default="celeros" unless="$(arg simulation)" />
   <arg name="loglevel" default="INFO" doc="INFO or DEBUG"/>
 
   <!--
@@ -43,7 +42,7 @@
   <!-- celery worker -->
   <group if="$(arg beat)">
     <!-- celery beat worker -->
-    <node pkg="celeros" name="celeros" type="celeros" args=" --beat -A $(arg app) --config $(arg config) --hostname beat.$(arg hostname) -S $(arg beat_scheduler) --queues $(arg queues) -l $(arg loglevel)">
+    <node pkg="celeros" name="celeros" type="celeros" args=" --beat -A $(arg app) --config $(arg config) --hostname beat.$(arg hostname) -S $(arg beat_scheduler) -l $(arg loglevel)">
       <param name="topics" value="$(arg topics)" type="str" />
       <param name="services" value="$(arg services)" type="str" />
       <param name="enable_cache" value="$(arg enable_cache)"/>
@@ -55,7 +54,7 @@
 
   <group unless="$(arg beat)">
     <!-- celery normal worker -->
-    <node pkg="celeros" name="celeros" type="celeros" args=" -A $(arg app) --config $(arg config) --hostname $(arg hostname) --queues $(arg queues) --loglevel $(arg loglevel)">
+    <node pkg="celeros" name="celeros" type="celeros" args=" -A $(arg app) --config $(arg config) --hostname $(arg hostname) --loglevel $(arg loglevel)">
       <param name="topics" value="$(arg topics)" type="str" />
       <param name="services" value="$(arg services)" type="str" />
       <param name="enable_cache" value="$(arg enable_cache)"/>
