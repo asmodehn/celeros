@@ -39,6 +39,10 @@ case $key in
     APP="$2"
     shift 2
     ;;
+    -l|--logging)
+    LOG="$2"
+    shift 2
+    ;;
     __*)
     ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
     #ros option ( multiple )
@@ -58,9 +62,11 @@ CONF=${CONF:+"--conf=$CONF"}
 CONFIG=${CONFIG:+"--config=$CONFIG"}
 BROKER=${BROKER:+"-b $BROKER"}
 APP=${APP:+"-A $APP"}
+LOG=${LOG:+"--logging=$LOG"}
+
 
 set -x
 
 # need to call python to use the flower version accessible after  "source <devel|install>/setup.bash"
-python -tt -m flower ${PORT} ${ADDRESS} ${CONF} ${CONFIG} ${BROKER} ${TASKS} ${ROSARGS}
+python -tt -m flower ${PORT} ${ADDRESS} ${CONF} ${CONFIG} ${BROKER} ${TASKS} ${ROSARGS} ${LOG}
 

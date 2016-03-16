@@ -3,12 +3,11 @@ from __future__ import absolute_import
 import time
 import random
 
-from . import config
 from celery import Celery
 from celery.bin import Option
 from .bootsteps import PyrosBoot, BatteryWatcher
 
-# NEEDED TO hae celerybeatredis subpackage loaded by celery beat...
+# REQUIRED, to have celerybeatredis subpackage loaded by celery beat...
 from . import celerybeatredis
 
 import sys
@@ -18,7 +17,8 @@ celeros_app = Celery()
 
 # BEWARE : https://github.com/celery/celery/issues/3050
 # doing this prevent setting config from command line
-#celeros_app.config_from_object(config)
+# from . import config
+# celeros_app.config_from_object(config)
 
 # setting up custom bootstep to start ROS node and pass ROS arguments to it
 # for worker ( running on robot )
@@ -27,6 +27,14 @@ celeros_app.steps['consumer'].add(BatteryWatcher)
 celeros_app.user_options['worker'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
 # and for beat ( running on concert )
 celeros_app.user_options['beat'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
+
+from celery import states
+from celery.signals import before_task_publish
+
+@before_task_publish.connect
+def store_pending_state(body, headers, **kwargs):
+     task_id = headers.get('id') or body.get('id')
+     celeros_app.backend.store_result(task_id, None, states.PENDING)
 
 
 #############################

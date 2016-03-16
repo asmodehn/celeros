@@ -66,7 +66,7 @@
 
   <group if="$(arg flower)">
     <!-- flower server -->
-    <node pkg="celeros" name="flower" type="flower" args="--port $(arg flower_port) --address $(arg flower_bind) --conf $(arg flower_conf) --config $(arg config)"/>
+    <node pkg="celeros" name="flower" type="flower" args="--port $(arg flower_port) --address $(arg flower_bind) --conf $(arg flower_conf) --config $(arg config) --logging $(arg loglevel)"/>
   </group>
 
 </launch>

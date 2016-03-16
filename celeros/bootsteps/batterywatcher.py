@@ -39,8 +39,6 @@ class BatteryWatcher(bootsteps.StartStopStep):
         self.battery_topic = consumer.app.conf.CELEROS_BATTERY_TOPIC
 
         if self.battery_topic:  # if we care about the battery
-            # Calling right now when starting (to disable if needed asap)
-            self.battery_watcher(consumer)
             # Setting up a timer looping to watch Battery levels
             consumer.timer.call_repeatedly(consumer.app.conf.CELEROS_BATTERY_CHECK_PERIOD, self.battery_watcher, args=(consumer,), kwargs={}, priority=0)
         else:
@@ -67,24 +65,28 @@ class BatteryWatcher(bootsteps.StartStopStep):
                     # enabling/disabling consumer to queues bound by battery requirements
                     for bpct, q in maybe_list(consumer.app.conf.CELEROS_MIN_BATTERY_PCT_QUEUE):
 
+                        if isinstance(q, kombu.Queue):
+                            qname = q.name
+                        else:  # assumed str
+                            qname = q
+                            for kq in consumer.app.conf.CELERY_QUEUES:
+                                if kq.name == qname:
+                                    # we find a queue with the same name already configured. we should use it.
+                                    q = kq
+                                    break
+
                         # to stop consuming from a queue we only need the queue name
-                        if battpct < bpct and consumer.task_consumer.consuming_from(q):
-                            _logger.warn("Battery Low {0}%. Ignoring task queue {1} until battery is recharged.".format(battpct, q))
-                            consumer.cancel_task_queue(q)
-                        elif not battpct < bpct and not consumer.task_consumer.consuming_from(q):
+                        if battpct < bpct and consumer.task_consumer.consuming_from(qname):
+                            _logger.warn("Battery Low {0}%. Ignoring task queue {1} until battery is recharged.".format(battpct, qname))
+                            consumer.cancel_task_queue(qname)
+                        elif not battpct < bpct and not consumer.task_consumer.consuming_from(qname):
                             # To listen to a queue we might need to create it.
                             # We should reuse the ones from config if possible
-                            full_q = None
-                            for kq in consumer.app.conf.CELERY_QUEUES:
-                                if kq.name == q:
-                                    # we find a similar already configured queue.
-                                    full_q = kq
-                                    break
-                            if full_q:
-                                consumer.add_task_queue(full_q)
+                            if isinstance(q, kombu.Queue):
+                                consumer.add_task_queue(q)
                             else:  # if we didnt find the queue among the configured queues, we need to create it.
                                 consumer.add_task_queue(
-                                    queue=q,
+                                    queue=qname,
                                     # it seems consumer is not applying the default from config from here?
                                     exchange=consumer.app.conf.CELERY_DEFAULT_EXCHANGE,
                                     exchange_type=consumer.app.conf.CELERY_DEFAULT_EXCHANGE_TYPE,

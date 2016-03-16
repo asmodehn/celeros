@@ -20,7 +20,7 @@ from .celerybeatredis import RedisScheduler as celerybeatredis_Scheduler
 from .rosperiodictasks import PeriodicTask
 
 
-# We use the normal RedisSchedulEntry. This is just here as an example of overloading the behavior for an Entry.
+# We use the normal RedisScheduleEntry. This is just here as an example of overloading the behavior for an Entry.
 class RedisScheduleEntry(celerybeatredis_ScheduleEntry):
 
     def __init__(self, name=None, task=None, enabled=True, fire_and_forget=False, last_run_at=None,
@@ -32,7 +32,7 @@ class RedisScheduleEntry(celerybeatredis_ScheduleEntry):
         :param enabled: whether the task is enabled and should run
         :param fire_and_forget: whether the task should be deleted after triggering once
         :param last_run_at: last time the task was run
-        :param total_run_count: the numbe rof time the task was run
+        :param total_run_count: the number of time the task was run
         :param schedule: the schedule for the task
         :param args: the args for the task
         :param kwargs: the kwargs for the task

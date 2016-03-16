@@ -45,21 +45,35 @@ CELERYBEAT_MAX_LOOP_INTERVAL = 30
 # each worker will accept only a single task at a time
 CELERYD_CONCURRENCY = 1  # only need one worker process.
 CELERYD_PREFETCH_MULTIPLIER = 1  # 0 means no limit.
-CELERY_ACKS_LATE = True
+CELERY_ACKS_LATE = True  # we ack when the task is finished. only then the next task will be fetched.
 
 # Force each worker to have its own queue. So we can send specific task to each.
 CELERY_WORKER_DIRECT = True
 
-# Routes are ony important for task sender : we do not care about simulation or not here.
+# Routes are only important for task sender : we do not care about simulation or not here.
 CELERY_DEFAULT_QUEUE = 'celeros'
-CELEROS_ROUTES = {
-    'celeros.app.add_together': {'queue': 'celeros'},
-    'celeros.app.long_task': {'queue': 'celeros'},
-}
+CELERY_DEFAULT_EXCHANGE = 'celeros'
+CELERY_DEFAULT_EXCHANGE_TYPE = 'direct'  # topic doesnt seem to work with redis at the moment ( https://github.com/celery/celery/issues/3117 )
+CELERY_DEFAULT_ROUTING_KEY = 'celeros'
+
+# Queueing strategy : matching routing_key determine which queue the task will go in
+# default routing key is the task name. a matching queue will be determined by celery.
+CELERY_QUEUES = (
+)
+# Note the battery sensitive queue should not be put here
+# as it would automatically start consume before we are able to do battery check
 
 # Extending celery router
 # celeros router automatically prepend "simulated." if the task run is intended to be simulated.
-CELERY_ROUTES = (celeros.Router(CELEROS_ROUTES, CELERY_DEFAULT_QUEUE), )
+# We only know this when the task is about to be run.
+CELERY_ROUTES = (celeros.Router({
+    'celeros.app.add_together': {
+        'queue': 'celeros'
+    },
+    'celeros.app.long_task': {
+        'queue': 'celeros'
+    },
+}))
 
 #
 # Custom Celeros settings:
@@ -71,9 +85,13 @@ CELERY_ROUTES = (celeros.Router(CELEROS_ROUTES, CELERY_DEFAULT_QUEUE), )
 CELEROS_BATTERY_TOPIC = '/robot/battery'
 # TODO : regex here (matching the local hostname instead of "robot"?) ?
 
+# how often we check the battery (in secs)
+CELEROS_BATTERY_CHECK_PERIOD = 60
+
 # (List of) tuples of battery levels and queues that can be consumed from,
 # only if the battery has a percentage higher than the specified level
 CELEROS_MIN_BATTERY_PCT_QUEUE = [
-    (20, 'celeros')
+    (20, Queue('celeros',    routing_key='celeros'))
 ]
-# This will automatically create the required queues. No need to specify CELERY_QUEUES here.
+# This will automatically create the required queues if needed.
+# But we need to specify CELERY_QUEUES here in order to set the routing key for it.
