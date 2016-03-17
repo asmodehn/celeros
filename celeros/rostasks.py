@@ -1,6 +1,11 @@
+import os
+import socket
 import time
+
+import datetime
+
 from .app import celeros_app
-from celery import Task
+from celery import Task, states
 from celery.contrib.abortable import AbortableTask
 
 from celery.utils.log import get_task_logger
@@ -12,11 +17,12 @@ _logger = get_task_logger(__name__)
 # http://stackoverflow.com/questions/6393879/celery-task-and-customize-decorator
 
 class RosTask(AbortableTask):
+    abstract = True
 
     def run(self, *args, **kwargs):
         """
         :param args: args of the task
-        :param kwargs: kwargs of the tas.k
+        :param kwargs: kwargs of the task
         :return:
         """
         # TODO : investigate dynamic wake up of pyros ?

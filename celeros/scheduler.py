@@ -79,6 +79,11 @@ class RedisScheduler(celerybeatredis_Scheduler):
 
         return new_entry
 
+    # Overload this if you need to modify the way the task is run.
+    # check parent classes for reference implementation
+    def apply_async(self, entry, publisher=None, **kwargs):
+        return super(RedisScheduler, self).apply_async(entry, publisher, **kwargs)
+
     def sync(self):
         logger.info('cleaning up entries to be deleted...')
 

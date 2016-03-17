@@ -27,24 +27,21 @@ class Router(MapRoute):
     # No simple way to get the map from celery,
     # Done in configuration for now...
     def __init__(self, map):
-        print("Setting up default routes from {map}".format(map=map))
+        # print("Setting up default routes from {map}".format(map=map))
         super(Router, self).__init__(map)
 
     # NOTE : celery logger doesnt seem to work(no output) here
     def route_for_task(self, task, args=None, kwargs=None):
         """
         Router function. Basic example that can easily be extended.
-        We use an extra task argument to determine which queue ( based on configuration )
-        the task is going to be routed to. This means that the caller package doesn't need to know the queue layout.
-        The router here will import the configuration and figure it out.
+        We use an extra task argument to determine if we should send the task to a special "simulated.<original_queue>" queue,
+         in order to branch the flow of task destined for simulated robots only.
         BEWARE : we do not have access to the app here... any client could instantiate the router (command line, flower, etc.)
         """
         try:  # To log all exceptions and avoid passing them silently in caller
 
             # Getting the usual route
             res = super(Router, self).route_for_task(task, args=args, kwargs=kwargs)
-
-            print("usual route {res}".format(res=res))
 
             # if simulated run, we prepend "simulated." string to reroute the task
             # WARNING : passing this as a part of args will not be detected here !
@@ -53,6 +50,7 @@ class Router(MapRoute):
                 res['queue'] = 'simulated.' + res['queue']
 
             print("Routing Task {simq}".format(simq=res))
+            # Note : if options specifies a queue already, this route will be ignored.
             return res
 
         except Exception as exc:

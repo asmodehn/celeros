@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 
 import time
+import datetime
 import random
 
 from celery import Celery
 from celery.bin import Option
+from celery.result import AsyncResult
 from .bootsteps import PyrosBoot, BatteryWatcher
 
 # REQUIRED, to have celerybeatredis subpackage loaded by celery beat...
@@ -27,14 +29,6 @@ celeros_app.steps['consumer'].add(BatteryWatcher)
 celeros_app.user_options['worker'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
 # and for beat ( running on concert )
 celeros_app.user_options['beat'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
-
-from celery import states
-from celery.signals import before_task_publish
-
-@before_task_publish.connect
-def store_pending_state(body, headers, **kwargs):
-     task_id = headers.get('id') or body.get('id')
-     celeros_app.backend.store_result(task_id, None, states.PENDING)
 
 
 #############################
