@@ -30,6 +30,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 CELERY_ALWAYS_EAGER = False  # We do NOT want the task to be executed immediately locally.
 CELERY_TRACK_STARTED = True  # We want to know when the task are started
+CELERY_SEND_TASK_SENT_EVENT = True  # needed to have the sent time (exposed by flower)
 
 # config used by beat for scheduler
 CELERY_REDIS_SCHEDULER_KEY_PREFIX = 'schedule:'
