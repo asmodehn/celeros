@@ -1,12 +1,17 @@
 from __future__ import absolute_import
 
 import time
+import datetime
 import random
 
-from . import config
 from celery import Celery
 from celery.bin import Option
-from .rosstart import BootPyrosNode
+from celery.result import AsyncResult
+from .bootsteps import PyrosBoot, BatteryWatcher
+
+# REQUIRED, to have celerybeatredis subpackage loaded by celery beat...
+from . import celerybeatredis
+
 import sys
 
 # move that into __init__. It seems celery apps usually follow same package pattern as flask.
@@ -14,11 +19,16 @@ celeros_app = Celery()
 
 # BEWARE : https://github.com/celery/celery/issues/3050
 # doing this prevent setting config from command line
-#celeros_app.config_from_object(config)
+# from . import config
+# celeros_app.config_from_object(config)
 
 # setting up custom bootstep to start ROS node and pass ROS arguments to it
-celeros_app.steps['worker'].add(BootPyrosNode)
+# for worker ( running on robot )
+celeros_app.steps['worker'].add(PyrosBoot)
+celeros_app.steps['consumer'].add(BatteryWatcher)
 celeros_app.user_options['worker'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
+# and for beat ( running on concert )
+celeros_app.user_options['beat'].add(Option('-R', '--ros-arg', action="append", help='Arguments for ros initialisation'))
 
 
 #############################
@@ -29,12 +39,20 @@ from celery.utils.log import get_task_logger
 _logger = get_task_logger(__name__)
 
 
-# TODO : fancy task decorators and behaviors for ROS-style tasks
-# http://stackoverflow.com/questions/6393879/celery-task-and-customize-decorator
 
+
+# These tasks do not require ROS.
+# But they are useful to test if basic celery functionality is working.
+
+# How to test in a shell :
+# Normal run (to default queue)
+# $ celery -b redis://localhost:6379 --config=celeros.config call celeros.app.add_together --args='[4,6]'
+# simulated run (to simulated queue)
+# $ celery -b redis://localhost:6379 --config=gopher_tasks.config_localhost call celeros.app.add_together --args='[4,6]' --kwargs='{"simulated": true}'
+#
 
 @celeros_app.task()
-def add_together(a, b):
+def add_together(a, b, simulated=False):
     _logger.info("Sleeping 7s")
     time.sleep(7)
     _logger.info("Adding %s + %s" % (a, b))
@@ -43,7 +61,7 @@ def add_together(a, b):
 
 # Basic task with feedback for simple tests
 @celeros_app.task(bind=True)
-def long_task(self):
+def long_task(self, simulated=False):
     """Background task that runs a long function with progress reports."""
     verb = ['Starting up', 'Booting', 'Repairing', 'Loading', 'Checking']
     adjective = ['master', 'radiant', 'silent', 'harmonic', 'fast']
