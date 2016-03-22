@@ -48,6 +48,11 @@ class RedisScheduleEntry(celerybeatredis_ScheduleEntry):
             options=options, app=app, **extrakwargs
         )
 
+    def __repr__(self):
+        return (super(RedisScheduleEntry, self).__repr__() + ' fire_and_forget: {ff}'.format(
+            ff=self.fire_and_forget
+        ))
+
     def is_due(self):
         due = super(RedisScheduleEntry, self).is_due()
         return due
@@ -87,12 +92,13 @@ class RedisScheduler(celerybeatredis_Scheduler):
         return super(RedisScheduler, self).apply_async(entry, publisher, **kwargs)
 
     def sync(self):
-        logger.info('cleaning up entries to be deleted...')
-
         _tried_purge = set()
         try:
+            if self._purge:
+                logger.info('cleaning up entries to be deleted :')
             while self._purge:
                 name = self._purge.pop()
+                logger.info('- {0}'.format(name))
                 _tried_purge.add(name)
                 # delete entries that need to be purged
                 self.rdb.delete(name)
