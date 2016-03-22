@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 import datetime
 import logging
+import pprint
 
 import celery
 from celery.utils.log import get_logger
@@ -47,6 +48,11 @@ class RedisScheduleEntry(celerybeatredis_ScheduleEntry):
             options=options, app=app, **extrakwargs
         )
 
+    def __repr__(self):
+        return (super(RedisScheduleEntry, self).__repr__() + ' fire_and_forget: {ff}'.format(
+            ff=self.fire_and_forget
+        ))
+
     def is_due(self):
         due = super(RedisScheduleEntry, self).is_due()
         return due
@@ -61,9 +67,9 @@ class RedisScheduler(celerybeatredis_Scheduler):
         super(RedisScheduler, self).__init__(*args, **kwargs)
 
         self._purge = set()  # keeping entries to delete by name for sync later on
+
         # Here an app is setup.
         # And we can get the pyros client :
-
         print("pyros_client : {}".format(self.app.ros_node_client))
 
     def reserve(self, entry):
@@ -82,15 +88,17 @@ class RedisScheduler(celerybeatredis_Scheduler):
     # Overload this if you need to modify the way the task is run.
     # check parent classes for reference implementation
     def apply_async(self, entry, publisher=None, **kwargs):
+        logger.info("triggering schedule entry : {0}".format(pprint.pformat(entry.__dict__)))
         return super(RedisScheduler, self).apply_async(entry, publisher, **kwargs)
 
     def sync(self):
-        logger.info('cleaning up entries to be deleted...')
-
         _tried_purge = set()
         try:
+            if self._purge:
+                logger.info('cleaning up entries to be deleted :')
             while self._purge:
                 name = self._purge.pop()
+                logger.info('- {0}'.format(name))
                 _tried_purge.add(name)
                 # delete entries that need to be purged
                 self.rdb.delete(name)
