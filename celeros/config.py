@@ -64,17 +64,19 @@ CELERY_QUEUES = (
 # Note the battery sensitive queue should not be put here
 # as it would automatically start consume before we are able to do battery check
 
-# Extending celery router
-# celeros router automatically prepend "simulated." if the task run is intended to be simulated.
-# We only know this when the task is about to be run.
-CELERY_ROUTES = (celeros.Router({
+CELERY_ROUTES = ({
     'celeros.app.add_together': {
         'queue': 'celeros'
     },
     'celeros.app.long_task': {
         'queue': 'celeros'
     },
-}))
+})
+# Note : some routes will need to be setup here for simulated task to go to simulated queues.
+# Hint : Celery 3.1 Router doesnt get options passed to it,
+#  so there is no convenient way to route a task run based on "task run intent".
+#  The route can depend only on the task name itself
+#  -> simulated task should duplicate normal task, with only a different name, that will branch to a different route.
 
 #
 # Custom Celeros settings:
