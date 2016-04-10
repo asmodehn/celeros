@@ -1,7 +1,8 @@
 --index-url https://pypi.python.org/simple/
 --extra-index-url https://testpypi.python.org/simple/
 
-celery
+celery==3.1.20
+redis==2.10.5
 futures
 
 # adds dependency packages for development only
