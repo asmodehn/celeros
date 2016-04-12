@@ -18,6 +18,7 @@ _logger = get_logger(__name__)
 # TODO : fix logging : http://docs.celeryproject.org/en/latest/userguide/extending.html#installing-bootsteps
 # logging is not reentrant, and methods here are called in different ways...
 
+
 # TODO : configuration for tests...
 class BatteryWatcher(bootsteps.StartStopStep):
     """

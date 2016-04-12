@@ -18,3 +18,10 @@ CELEROS_MIN_BATTERY_PCT_QUEUE = [
 ]
 # This will automatically create the required queues. No need to specify CELERY_QUEUES here.
 
+# Note : celery groups tasks by queues in order to send them to different workers.
+# But the default case is that all worker should mostly able to do all tasks
+# For robot the usual assumption is different : only one robot can do one task.
+# => We should have some kind of "per robot" configuration that allows a robot to provide one task but not another...
+#    And this should probably be independent of how the broker handles the transmission of these tasks
+#    ie. what a robot can do, should not be related to queues, but to simple robot configuration
+#    => Maybe task imports ? but sender needs all, and all robots could potentially send...

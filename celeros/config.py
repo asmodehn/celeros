@@ -5,7 +5,6 @@
 # TODO : move to a cleaner way to do configuration ( probably after mutating into up a pure python package )
 
 from kombu import Queue
-import celeros
 
 #
 # These should probably be changed, depending on your celeros deployment
