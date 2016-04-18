@@ -57,7 +57,7 @@ case $key in
     ;;
     *)
     # unknown option
-    echo "Unknown Option"
+    echo "Unknown Option $key"
     shift 1
     ;;
 esac

@@ -43,14 +43,18 @@ case $key in
     LOG="$2"
     shift 2
     ;;
-    __*)
-    ROSARGS="${ROSARGS:+$ROSARGS} --ros-arg=$key"
-    #ros option ( multiple )
+    __log:=*)
+    ROSLOG=${key#*:=}
+    #ros log option as prefix
+    shift 1
+    ;;
+    __name:=*)
+    # ignoring
     shift 1
     ;;
     *)
     # unknown option
-    echo "Unknown Option"
+    echo "Unknown Option $key"
     shift 1
     ;;
 esac
@@ -63,10 +67,10 @@ CONFIG=${CONFIG:+"--config=$CONFIG"}
 BROKER=${BROKER:+"-b $BROKER"}
 APP=${APP:+"-A $APP"}
 LOG=${LOG:+"--logging=$LOG"}
-
+ROSLOG=${ROSLOG:+"--log_file_prefix=$ROSLOG"}
 
 set -x
 
 # need to call python to use the flower version accessible after  "source <devel|install>/setup.bash"
-python -tt -m flower ${PORT} ${ADDRESS} ${CONF} ${CONFIG} ${BROKER} ${TASKS} ${ROSARGS} ${LOG}
+python -tt -m flower ${PORT} ${ADDRESS} ${CONF} ${CONFIG} ${BROKER} ${TASKS} ${ROSARGS} ${LOG} ${ROSLOG}
 
