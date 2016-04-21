@@ -88,7 +88,6 @@ class RedisScheduler(celerybeatredis_Scheduler):
     # Overload this if you need to modify the way the task is run.
     # check parent classes for reference implementation
     def apply_async(self, entry, publisher=None, **kwargs):
-        logger.info("triggering schedule entry : {0}".format(pprint.pformat(entry.__dict__)))
         return super(RedisScheduler, self).apply_async(entry, publisher, **kwargs)
 
     def sync(self):
