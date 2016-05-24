@@ -4,7 +4,7 @@
   <arg name="config" default="celeros.config"/>
 
   <!-- start the worker process ( which will start a node in a subprocess ) -->
-  <node name="celeros" pkg="celeros" type="worker" output="screen" args=" -A $(arg app) --config celeros.config">
+  <node name="celeros" pkg="celeros" type="celeros" output="screen" args=" -A $(arg app) --config celeros.config">
     <param name="topics" value="['/celeros_test.*/injected','/celeros_test.*/extracted']" type="str" />
     <param name="services" value="['/celeros_test.*/called']" type="str" />
   </node>
