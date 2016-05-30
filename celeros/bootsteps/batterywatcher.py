@@ -58,7 +58,8 @@ class BatteryWatcher(bootsteps.StartStopStep):
                     self.battery_topic
                 )
 
-                battpct = battery_msg.get('percentage', None)  # we assume standard battery message structure here
+                # we assume standard sensor message structure here
+                battpct = battery_msg.get('sensor_state', {}).get('percentage', None)
                 if battpct is None:
                     _logger.warn("Battery percentage not found in battery message : {0}".format(battery_msg))
                 else:
