@@ -54,8 +54,8 @@ def setup_module():
         rospy.set_param('/celeros/topics', "['/celeros_test.*/injected','/celeros_test.*/extracted']")
         rospy.set_param('/celeros/services', "['/celeros_test.*/called']")
         worker_node = roslaunch.core.Node(
-                'celeros', 'worker',
-                name='worker',
+                'celeros', 'celeros',
+                name='celeros',
                 args=" -A " + app +
                      " --config " + config
         )

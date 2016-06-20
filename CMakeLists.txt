@@ -31,7 +31,9 @@ install(DIRECTORY launch/
 
 ## Unit tests
 if (CATKIN_ENABLE_TESTING)
-  add_subdirectory(tests)
+    # Unit tests using nose, but needing a running ROS core.
+    find_package(catkin REQUIRED COMPONENTS rostest)
+    add_rostest(tests/celeros/testceleros.test)
 endif()
 
 
