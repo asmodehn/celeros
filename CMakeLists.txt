@@ -3,15 +3,17 @@ project(celeros)
 
 # Minimal pure Python module setup
 find_package(catkin REQUIRED COMPONENTS
-    catkin_pure_python
+    catkin_pip
     rospy
 )
 
 # We need to install the pip dependencies in the workspace being created
-catkin_pip_requirements(${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt)
+# --ignore-installed will prevent existing sytem pacakges to satisfy the requirements, but it is needed if the version required does not match the system version
+catkin_pip_requirements(${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt --ignore-installed)
 
 # defining current package as a package that should be managed by pip (not catkin - even though we make it usable with workspaces)
-catkin_pip_package()
+catkin_pip_setup()
+catkin_package()
 
 catkin_add_env_hooks(42.celeros_hostname SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
 
