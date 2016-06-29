@@ -46,16 +46,10 @@ setup(name='celeros',
         'celeros',
         'celeros.bootsteps',
         'celeros.celerybeatredis',
-        'celery', 'celery.app', 'celery.apps', 'celery.backends', 'celery.backends.database', 'celery.bin', 'celery.concurrency', 'celery.contrib', 'celery.events', 'celery.fixups', 'celery.loaders', 'celery.security', 'celery.task', 'celery.utils', 'celery.utils.dispatch', 'celery.worker',
-        'kombu', 'kombu.async', 'kombu.transport', 'kombu.transport.sqlalchemy', 'kombu.transport.virtual', 'kombu.utils',
-        'billiard', 'billiard.dummy', 'billiard.py2', 'billiard.py3',
         'flower', 'flower.api', 'flower.utils', 'flower.utils.backports', 'flower.views',
     ],
     package_dir={
         'celeros': 'celeros',
-        'celery': 'deps/celery/celery',
-        'kombu': 'deps/kombu/kombu',
-        'billiard': 'deps/billiard/billiard',
         'flower': 'deps/flower/flower',
     },
     package_data={
@@ -65,7 +59,8 @@ setup(name='celeros',
     # or maybe move to wheel ?
     # this is better than using package data ( since behavior is a bit different from distutils... )
     include_package_data=True,  # use MANIFEST.in during install.
-    install_requires=[  # External dependencies only. the ones that match package.xml. others are included in here already.
+    install_requires=[
+        'celery==3.1.20',
     ],
     zip_safe=False,  # TODO testing...
 )

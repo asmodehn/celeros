@@ -1,8 +1,8 @@
 --index-url https://pypi.python.org/simple/
 --extra-index-url https://testpypi.python.org/simple/
 
-celery
-flower
+# need these here to ignore already installed packages when retrieving them.
+celery==3.1.20
 futures
 
 # adds dependency packages for development only
