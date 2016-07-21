@@ -39,7 +39,7 @@ class PyrosBoot(bootsteps.StartStopStep):
             )
             # Attribute error is triggered when using pyros < 0.1.0
         except (ImportError, AttributeError) as e:
-            logging.warn("{name} Error: Could not import pyros : {e}".format(name=__name__, e=e))
+            #logging.warn("{name} Error: Could not import pyros : {e}".format(name=__name__, e=e))
             ### TMP ###
             logging.warn("{name} Attempting bwcompat import : {e}".format(name=__name__, e=e))
             # BWcompat with old pyros :
