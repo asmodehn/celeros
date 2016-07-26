@@ -72,4 +72,4 @@ QUEUES=${QUEUES:+"-Q $QUEUES"}
 LOG=${LOG:+"-l $LOG"}
 set -x
 
-python -tt -m celery ${APP} worker ${BEAT} ${BROKER} ${CONFIG} ${QUEUES} ${CELEROS_HOSTNAME} ${ROSARGS} ${LOG}
+python -tt -m celery ${APP} worker ${BEAT} ${BROKER} ${CONFIG} ${QUEUES} ${CELEROS_HOSTNAME} ${ROSARGS} ${LOG} -f ~/.ros/log/celeros.log
