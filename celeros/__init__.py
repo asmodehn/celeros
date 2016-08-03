@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+# This monkey patch celery
+from . import customlogger
+
 from .rosperiodictasks import PeriodicTask
 from .scheduler import RedisScheduler, RedisScheduleEntry
 from .celerybeatredis import DateTimeEncoder, DateTimeDecoder
