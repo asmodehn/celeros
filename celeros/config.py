@@ -21,7 +21,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/1'
 # config used by beat for scheduler
 CELERY_REDIS_SCHEDULER_URL = "redis://localhost:6379/2"
 
-CELERY_IMPORTS = ('celeros.rostasks', )
+CELERY_IMPORTS = ('celery.task.http', 'celeros.rostasks', )
 
 CELERYBEAT_SCHEDULER = 'celeros.RedisScheduler'
 

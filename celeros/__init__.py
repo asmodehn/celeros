@@ -5,6 +5,8 @@ from .scheduler import RedisScheduler, RedisScheduleEntry
 from .celerybeatredis import DateTimeEncoder, DateTimeDecoder
 from .app import celeros_app
 
+from celery.task.control import inspect
+
 __all__ = [
     'DateTimeDecoder',
     'DateTimeEncoder',
@@ -12,5 +14,6 @@ __all__ = [
     'RedisScheduler',
     'RedisScheduleEntry',
     'celeros_app',
+    'inspect',
 ]
 
