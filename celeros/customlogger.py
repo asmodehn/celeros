@@ -63,7 +63,6 @@ def celeros_setup_handlers(self, logger, logfile, format, colorize,
 
             # Mark logger object patched.
             setattr(patched_logger, "_LOG_PATCH_DONE", True)
-            patched_logger.warn("CELERY LOG HAS BEEN PATCHED !!!!")
         finally:
             logging._releaseLock()
 
