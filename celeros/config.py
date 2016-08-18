@@ -52,7 +52,7 @@ PATCH_CELERYD_LOG_EXTRA_HANDLERS = [
     # note bis : logging level here cannot be less than main celery logging...
     (logging.DEBUG, lambda: logging.handlers.RotatingFileHandler(
         os.path.join(os.environ.get('ROS_HOME', os.path.join(os.path.expanduser("~"), '.ros')),
-                     "log",
+                     "gopher",
                      "celeros.log"),
         maxBytes=100 * 131072,
         backupCount=10)
