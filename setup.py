@@ -44,7 +44,7 @@ if _CATKIN:  # using distutils : https://docs.python.org/2/distutils
 else:  # using setuptools : http://pythonhosted.org/setuptools/
 
     setup(name='celeros',
-        version='0.0.1',
+        version='0.0.4',
         description='Celery as a scheduler for ROS systems',
         url='http://github.com/asmodehn/celeros',
         author='AlexV',
