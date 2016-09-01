@@ -3,6 +3,9 @@
 # this file can be overloaded and passed as argument to change the celeros configuration
 #
 # TODO : move to a cleaner way to do configuration ( probably after mutating into up a pure python package )
+import logging
+import logging.handlers
+import os
 
 from kombu import Queue
 
@@ -36,6 +39,27 @@ CELERY_CREATE_MISSING_QUEUES = True  # We create queue that do not exist yet.
 CELERY_ALWAYS_EAGER = False  # We do NOT want the task to be executed immediately locally.
 CELERY_TRACK_STARTED = True  # We want to know when the task are started
 CELERY_SEND_TASK_SENT_EVENT = True  # needed to have the sent time (exposed by flower)
+
+# Logger settings that blend in with ROS log format
+CELERYD_HIJACK_ROOT_LOGGER = False
+CELERYD_LOG_FORMAT = "[%(levelname)s] [%(asctime)s] [%(processName)s] %(message)s"
+CELERYD_TASK_LOG_FORMAT = "[%(levelname)s] [%(asctime)s] [%(processName)s] [%(task_name)s: (%(task_id)s)] %(message)s"
+
+# Custom log monkey patch
+# Ref : http://loose-bits.com/2010/12/celery-logging-with-python-logging.html
+PATCH_CELERYD_LOG_EXTRA_HANDLERS = [
+    # note the stream logger is already setup using normal celery logger code ( omitting command line -f arg ).
+    # note bis : logging level here cannot be less than main celery logging...
+    (logging.DEBUG, lambda: logging.handlers.RotatingFileHandler(
+        os.path.join(os.environ.get('ROS_HOME', os.path.join(os.path.expanduser("~"), '.ros')),
+                     "gopher",
+                     "celeros.log"),
+        maxBytes=100 * 131072,
+        backupCount=10)
+    ),
+    #(logging.WARNING, lambda: logging.handlers.SysLogHandler()),
+]
+# TODO : a better way to do this ?
 
 # config used by beat for scheduler
 CELERY_REDIS_SCHEDULER_KEY_PREFIX = 'schedule:'
