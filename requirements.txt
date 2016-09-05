@@ -1,10 +1,10 @@
 --index-url https://pypi.python.org/simple/
 --extra-index-url https://testpypi.python.org/simple/
 
-celery==3.1.18
-flower==0.8.2
-futures==3.0.2
+# need these here to ignore already installed packages when retrieving them.
+celery==3.1.20
+redis
+futures
 
--e git://github.com/asmodehn/rostful-node.git@rosless#egg=Rostful-node
-
--e .
+# adds dependency packages for development only
+# -e git+https://github.com/asmodehn/pyros.git@config_refactor#egg=pyros
