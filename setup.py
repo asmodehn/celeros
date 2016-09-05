@@ -26,7 +26,7 @@ setup(name='celeros',
     include_package_data=True,  # use MANIFEST.in during install.
     install_requires=[
         'celery==3.1.20',
-        'pyros==0.1.0',
+        'pyros>=0.2.0',
         'click',
     ],
     zip_safe=False,  # TODO testing...
