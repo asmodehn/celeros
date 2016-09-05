@@ -37,6 +37,7 @@ class BatteryWatcher(bootsteps.StartStopStep):
         # our step is started together with all other Worker/Consumer
         # bootsteps.
 
+        # TODO : find a simpler / more customizable way of configuring this for any robot
         self.battery_topic = consumer.app.conf.CELEROS_BATTERY_TOPIC
 
         if self.battery_topic:  # if we care about the battery
@@ -59,7 +60,7 @@ class BatteryWatcher(bootsteps.StartStopStep):
                 )
 
                 # we assume standard sensor message structure here
-                battpct = battery_msg.get('sensor_state', {}).get('percentage', None)
+                battpct = battery_msg.get(consumer.app.conf.CELEROS_BATTERY_LEVEL_FIELD, {})
                 if battpct is None:
                     _logger.warn("Battery percentage not found in battery message : {0}".format(battery_msg))
                 else:

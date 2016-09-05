@@ -112,7 +112,7 @@ CELEROS_BATTERY_TOPIC = '/robot/battery'
 # TODO : regex here (matching the local hostname instead of "robot"?) ?
 
 # how often we check the battery (in secs)
-CELEROS_BATTERY_CHECK_PERIOD = 60
+CELEROS_BATTERY_CHECK_PERIOD = 10
 
 # (List of) tuples of battery levels and queues that can be consumed from,
 # only if the battery has a percentage higher than the specified level
