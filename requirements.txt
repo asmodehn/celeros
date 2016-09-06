@@ -3,6 +3,7 @@
 
 # need these here to ignore already installed packages when retrieving them.
 celery==3.1.20
+flower
 redis
 futures
 
