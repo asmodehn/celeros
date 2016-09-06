@@ -26,7 +26,7 @@ endif()
 # Installs
 ##############################################################################
 
-# install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 #TODO : REDIS URL
 #catkin_add_env_hooks(42.gopher_hostname SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
