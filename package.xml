@@ -1,6 +1,6 @@
 <package>
   <name>celeros</name>
-  <version>0.0.4</version>
+  <version>0.1.0</version>
   <description>
       Celery as a scheduler for ROS systems
   </description>
