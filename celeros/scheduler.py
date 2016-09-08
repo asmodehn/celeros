@@ -1,11 +1,5 @@
 from __future__ import absolute_import
 
-import os
-import datetime
-import logging
-import pprint
-
-import celery
 from celery.utils.log import get_logger
 
 import pyros
@@ -63,7 +57,7 @@ class RedisScheduler(celerybeatredis_Scheduler):
     Entry = RedisScheduleEntry
 
     def __init__(self, *args, **kwargs):
-        logging.warn('{0!r} is starting from {1}'.format(self, __file__))
+        logger.warn('{0!r} is starting from {1}'.format(self, __file__))
         super(RedisScheduler, self).__init__(*args, **kwargs)
 
         self._purge = set()  # keeping entries to delete by name for sync later on

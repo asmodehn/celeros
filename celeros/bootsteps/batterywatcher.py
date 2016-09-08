@@ -64,7 +64,7 @@ class BatteryWatcher(bootsteps.StartStopStep):
                 if battpct is None:
                     _logger.warn("Battery percentage not found in battery message : {0}".format(battery_msg))
                 else:
-                    # _logger.info("Watching Battery : {0}% ".format(battpct))
+                    _logger.debug("Watching Battery : {0}% ".format(battpct))
                     # enabling/disabling consumer to queues bound by battery requirements
                     for bpct, q in maybe_list(consumer.app.conf.CELEROS_MIN_BATTERY_PCT_QUEUE):
 

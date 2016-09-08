@@ -9,6 +9,70 @@ import errno
 import celery
 import celery.bin.worker
 
+
+# logging configuration should be here to not be imported by users of celeros.
+# only used from command line
+
+import logging.config
+# Setting up logging for this test
+logging.config.dictConfig(
+    {
+        'version': 1,
+        'formatters': {
+            'verbose': {
+                'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+            },
+            'simple': {
+                'format': '%(levelname)s %(name)s:%(message)s'
+            },
+        },
+        'handlers': {  # Handlers not filtering level -> we filter from logger.
+            'null': {
+                'level': 'DEBUG',
+                'class': 'logging.NullHandler',
+            },
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple'
+            },
+        },
+        'loggers': {
+            'pyros_config': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'pyros_setup': {
+                'handlers': ['console'],
+                'level': 'INFO',
+            },
+            'pyros': {
+                'handlers': ['console'],
+                'level': 'INFO',
+            },
+            # Needed to see celery processes log (especially beat)
+            'celery': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'celeros': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            '': {  # root logger
+                'handlers': ['console'],
+                'level': 'INFO',
+            }
+
+        }
+    }
+)
+
+
+
 #importing current package if needed ( solving relative package import from __main__ problem )
 if __package__ is None:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -16,8 +80,6 @@ if __package__ is None:
 else:
     from . import celeros_app
 
-import logging
-from logging.handlers import RotatingFileHandler
 
 # Note to keep things simple and somewhat consistent, we try to follow rostful's __main__ structure here...
 
@@ -56,7 +118,8 @@ def worker(hostname, broker, beat, loglevel, logfile, queues, scheduler, config,
     """
 
     # Massaging argv to make celery happy
-    argv = []
+    # First arg needs to be the prog_name (following schema "celery prog_name --options")
+    argv = ['worker']
     if beat:
         argv += ['--beat']
     if hostname:
@@ -77,8 +140,8 @@ def worker(hostname, broker, beat, loglevel, logfile, queues, scheduler, config,
     for r in ros_args:
         argv += ['--ros-arg={0}'.format(r)]
 
+    logging.info("Starting celery with arguments {argv}".format(**locals()))
     celeros_app.worker_main(argv=argv)
-
 
 # TODO : inspect command wrapper here to simplify usage to our usecase.
 
