@@ -4,6 +4,16 @@
 # celeros
 Celery ROS python interface
 
+WARNING : This project is DEPRECATED. Use at your own peril.
+The point here was to send tasks to robots. However Celery :
+
+- likes stable network connection (which we don't have since robot can leave network anytime, for long periods)
+- idempotent tasks (which we cannot have since the point of a robot is to interact with the real world)
+- is too complex for custom modifications that are needed in a unstable robotic environment.
+
+Next Candidate for multi robot cooperation : Custom REST based Passive Scheduler.
+Robot should get free of the server and is just a web client like any human.
+
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/asmodehn/celeros
